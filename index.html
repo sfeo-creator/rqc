@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <title>rQC</title>
     <style>
         body {
@@ -346,7 +348,7 @@
             padding: 10px;
             margin: 0px auto 10px auto;
             border-radius: 6px;
-            max-width: 570px;
+            max-width: 800px;
             box-sizing: border-box;
         }
 
@@ -395,6 +397,24 @@
 
         .details {
             overflow-x: auto;
+        }
+
+        div#page-affichage{
+        }
+
+        div#map {
+            height: 400px;
+            width: 50%;
+            margin: 50px 0px 20px 0px ;
+            justify-self: center;
+        }
+
+        form.affichage {
+
+        }
+
+        div#affichage_data {
+
         }
     </style>
 </head>
@@ -545,6 +565,10 @@
 
 
     <div id="page-affichage" class="page">
+        <div id="map">
+
+        </div>
+
         <form action="" method="POST" class="affichage" id="affichage_form">
             <input type="search" name="" placeholder="Que cherchez vous ?" required><br>
 
@@ -586,7 +610,25 @@
     </footer>
 
     <script>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         let pageCourante = 'accueil';
+        let mapInitialisee = false;
+        let map;
 
         function naviguer(page) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -595,6 +637,23 @@
 
             hamburger.classList.remove('open');
             navLinks.classList.remove('active');
+            if (page === "affichage" && !mapInitialisee) {
+                map = L.map('map').setView([48.713846108052415, 2.1954199915880164], 14);
+                L.tileLayer('https://data.geopf.fr/wmts?'+'&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&TILEMATRIXSET=PM'+'&LAYER={ignLayer}&STYLE={style}&FORMAT={format}'+'&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}',
+                {
+                    ignLayer: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2',
+                    style: 'normal',
+                    format: 'image/png',
+                    service: 'WMTS',
+                    opacity: 0.4,
+                    attribution: 'Carte IGN/Geoplateforme'
+                }).addTo(map);
+                mapInitialisee = true;
+            }
+
+            if (page === "affichage" && map) {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
         }
 
         const hamburger = document.getElementById('hamburger');
