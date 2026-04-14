@@ -536,6 +536,8 @@
                 </datalist>
                 <input type="hidden" id="references_value" name="references_hidden"><br>
 
+
+
                 <input type="submit" class="submit_enregistrement" value="Enregistrer les données">
             </form>
         </div>
@@ -644,6 +646,7 @@
             const masse_alcool = parseFloat((volume_alcool * 7.89).toFixed(2));
             const rqc = parseFloat((prix * 100 / volume_alcool).toFixed(2));
             const prix_litre = parseFloat((prix * 100 / volume).toFixed(2));
+            const date = new Date().toLocaleDateString('fr-FR');
 
             const donnees = {
                 prix, volume, degre,
@@ -651,7 +654,7 @@
                 type_alcool: document.getElementById("type_alcool").value,
                 references: document.getElementById("references").value,
                 ville: document.getElementById("ville").value,
-                volume_alcool, masse_alcool, rqc, prix_litre
+                volume_alcool, masse_alcool, rqc, prix_litre, date
             };
 
             const req = indexedDB.open("bd_rqc", 1);
@@ -735,6 +738,7 @@
                                     <th>Volume</th>
                                     <th>Degré</th>
                                     <th>RQC</th>
+                                    <th>Date de mise à jour</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -751,6 +755,7 @@
                                 <td>${entry.volume}cL</td>
                                 <td>${entry.degre}°</td>
                                 <td>${entry.rqc} €/L</td>
+                                <td>${entry.date ?? "—"}</td>
                             `;
                             tbody.appendChild(tr);
                         });
