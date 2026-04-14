@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rQC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0;
+            margin: 0;
+            padding-bottom: 80px;
+        }
+
+        .page{
+            margin-bottom: 30px;
+        }
+
+        .navbar {
+            background-color: #333;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            z-index: 20;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        .hamburger.open span:nth-child(1) { 
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.open span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .navbar img {
+            max-width: 100px;
+            height: auto;
+            position: absolute;
+            top: 30px;
+            left: 80px;
+        }
+
+        .navbar a.logo_accueil {
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .navbar div {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .navbar a.accueil_button, .navbar a.affichage_button, .navbar a.enregistrement_button {
+            color: white;
+            text-decoration: none;
+            padding: 13px 65px;
+            display: block;
+            cursor: pointer;
+        }
+
+        .navbar a.accueil_button:hover, .navbar a.affichage_button:hover, .navbar a.enregistrement_button:hover {
+            background: #ddd;
+            color: black;
+        }
+
+        .accueil_button {
+            background: linear-gradient(109deg, rgba(0,34,255,1) 0%, rgba(255,0,208,1) 76%);
+            transition: background-color 0.3s ease;
+        }
+
+        .affichage_button {
+            background-color: #2196F3;
+            transition: background-color 0.3s ease;
+        }
+
+        .enregistrement_button {
+            background-color: #f44336;
+            transition: background-color 0.3s ease;
+        }
+
+        @media (max-width: 1200px) {
+            .hamburger { display: flex; }
+
+            .nav-links {
+                position: fixed;
+                top: 55px;
+                left: 0;
+                width: 100%;
+                background-color: #333;
+                flex-direction: column;
+                display: none;
+                padding: 0;
+                z-index: 10;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links div {
+                width: 60%; margin: 0;
+            }
+
+            .nav-links a {
+                padding: 15px;
+            }
+
+            .navbar img {
+                max-width: 100px; height: auto; position: initial; border: none;
+            }
+
+            div#page-accueil div {
+                text-align: center;
+                margin-top: 40px;
+            }
+
+            form.affichage {
+                margin: 20px 10px 0px 10px;
+                max-height: none;
+                overflow-y: visible;
+                width: auto;
+                box-sizing: border-box;
+            }
+
+            .reference-item {
+                margin: 0px 10px 10px 10px;
+            }
+
+            table {
+                font-size: 0.75em;
+            }
+
+            th, td {
+                padding: 4px 5px;
+            }
+
+            a.reference-link {
+                font-size: 1.1em;
+            }
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 20px 40px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-sizing: border-box;
+        }
+
+        footer div {
+            margin-bottom: 0;
+        }
+
+        footer a {
+            color: white; text-decoration: none;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        div#page-accueil {
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+            padding: 0 20px;
+        }
+        div#page-accueil div {
+            text-align: center;
+            margin-top: 75px;
+        }
+
+        div.form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+            padding: 0 20px;
+        }
+
+        form.enregistrement_form {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        input[type="submit"].submit_enregistrement {
+            width: 100%;
+        }
+
+        input[type="number"]#prix {
+            width: 100%;
+        }
+
+        input[type="text"], input[type="number"] {
+            border-right: unset;
+            border-left: unset;
+            border-top: unset;
+            border-bottom: 2px solid grey;
+            background-color: #ffffff;
+            padding: 10px;
+            margin-bottom: 15px;
+            min-height: 3vh;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        input[type="submit"] {
+            border-right: unset;
+            border-left: unset;
+            border-top: unset;
+            border-bottom: 2px solid grey;
+            background-color: #ffffff;
+            padding: 15px;
+            margin-bottom: 15px;
+            min-height: 3vh;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        input[type="text"]:hover, input[type="number"]:hover, input[type="submit"]:hover {
+            border-color: #ff351a;
+            transition: 0.3s ease;
+        }
+
+        button {
+            border-right: unset;
+            border-left: unset;
+            border-top: unset;
+            border-bottom: 2px solid grey;
+            background-color: #ffffff;
+            padding: 10px;
+            margin-bottom: 15px;
+            min-height: 3vh;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        button:hover {
+            border-color: #ff351a; transition: 0.3s ease;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            border-right: unset;
+            border-left: unset;
+            border-top: unset;
+            border-bottom: 2px solid grey;
+            background-color: #ffffff;
+            padding: 5px;
+            margin-bottom: 15px;
+            min-height: 3vh;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 1em;
+        }
+
+        .file-label:hover {
+            border-color: #ff351a;
+            transition: 0.3s ease;
+        }
+
+        .file-name {
+            margin-left: 10px;
+            color: grey;
+            font-style: italic;
+            font-size: 1em;
+        }
+
+        form.affichage {
+            margin: 40px auto 0px auto;
+            max-width: 570px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        form.affichage input[type="search"] {
+            width: 100%;
+            border-right: unset;
+            border-left: unset;
+            border-top: unset;
+            border-bottom: 2px solid grey;
+            background-color: #ffffff;
+            padding: 10px;
+            margin-bottom: 15px;
+            min-height: 3vh;
+            font-size: 1em;
+        }
+
+        form.affichage div.filtre_type_alcool p {
+            margin: 0 0 10px 0;
+            font-weight: bold;
+            grid-column: span 4;
+        }
+
+        .filtre_type_alcool{
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 0px 15px;
+        }
+
+        .reference-item{
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 0px auto 10px auto;
+            border-radius: 6px;
+            max-width: 570px;
+            box-sizing: border-box;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            font-size: 0.9em;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+
+        a.reference-link {
+            color: #2196F3;
+            text-decoration: none;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .details {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <nav class="nav-links" id="navLinks">
+            <div class="img"><a onclick="naviguer('accueil')" class="logo_accueil"><img src="images/Sans titre - 1.png" alt=""></a></div>
+            <div class="div_acc"><a onclick="naviguer('accueil')" class="accueil_button">Accueil</a></div>
+            <div class="div_aff"><a onclick="naviguer('affichage')" class="affichage_button">Affichage des données</a></div>
+            <div class="div_enr"><a onclick="naviguer('enregistrement')" class="enregistrement_button">Enregistrement des données</a></div>
+        </nav>
+    </header>
+
+
+    <div id="page-accueil" class="page active">
+        <div class="explication">
+            <h1 class="titre_accueil">Bienvenue sur la page d'accueil du rQC</h1>
+            <p class="paragraphe_presentation">Le rQC c'est le prix de l'alcool pur d'une bouteille rapporté à un litre.<br>Il permet de savoir à quel prix est la race que je me mets.<br><br> Pour utiliser l'application il faut d'abord que vous importiez votre base de données en cliquant en dessous sur "Choisir un fichier" puis "Importer les données".<br>Une fois votre base de données importée, vous pourrez accéder aux fonctionnalités de l'application. Il est possible de visualiser les données dans le menu "Affichage des données" et<br>d'en supprimer depuis ce menu. Le menu "enregistrement des données" vous permet de ajouter de nouvelles données à la base de données.<br>Une fois votre base de données complétée, vous pouvez l'exporter via le bouton "Exporter les données". Le fichier .JSON que vous téléchargerez pourra être partagé à vos amis ou sur le drive afin qu'une nouvelles<br>base de données enrichie par les données de tout le monde soit créée.<br>Celle-ci devrait paraitre tous les mois ou 2 à 3 semaines.<br><br>Voici le lien pour déposer votre dernière base de données : <a href="https://1drv.ms/f/c/b82558d11c7fd164/IgATgAMTrdPETrPUZ0hG8pl1AftIox7imgha1qQ8HQ1ofqs?e=6fgzqg">lien drive</a><br>Voici le lien vers la base de données la plus récente : <a href="https://1drv.ms/f/c/b82558d11c7fd164/IgCrs6ZgtkZSTJ57KyH6aQscAULsXJInjQn8-twLcdWgddI">lien drive</a></p>
+        </div>
+        <div class="buttons">
+            <p>Cliquez sur le bouton pour exporter les données :</p>
+            <button onclick="exporterBD()">Exporter les données</button><br><br>
+
+            <p>Cliquez sur le bouton pour importer les données sous format JSON :</p>
+            <label class="file-label" for="monFichier">Choisir un fichier</label>
+            <input type="file" id="monFichier">
+            <span class="file-name">Aucun fichier choisi</span>
+            <button onclick="importerBD()">Importer les données</button>
+        </div>
+    </div>
+
+
+    <div id="page-enregistrement" class="page">
+        <div class="form">
+            <form class="enregistrement_form" id="enregistrement_form">
+                <input type="number" id="prix" name="prix" step="0.01" required placeholder="Prix de la bouteille (en €)"><br>
+                <input type="number" id="volume" name="volume" step="0.01" required placeholder="Volume de la bouteille (en cL)">
+                <input type="number" id="degre" name="degre" step="0.01" required placeholder="Degré de l'alcool (en °)"><br>
+                <input type="text" id="magasin" name="magasin" required placeholder="Magasin d'achat">
+                <input type="text" id="ville" name="ville" required placeholder="Ville d'achat"><br>
+
+                <input list="list_type_alcool" type="text" id="type_alcool" name="type_alcool" required placeholder="Type d'alcool">
+                <datalist id="list_type_alcool">
+                    <option value="Vodka">
+                    <option value="Bière blonde">
+                    <option value="Bière ambrée">
+                    <option value="Whisky">
+                    <option value="Rhum blanc">
+                    <option value="Rhum ambré">
+                    <option value="Rhum coco">
+                    <option value="Vin rouge">
+                    <option value="Vin blanc">
+                    <option value="Anisette">
+                    <option value="Pastis">
+                    <option value="Bières triple">
+                    <option value="Vermouth sec">
+                    <option value="Soho">
+                    <option value="Chartreuse">
+                    <option value="Tequila">
+                    <option value="Get 27">
+                    <option value="Gin">
+                </datalist>
+                <input type="hidden" id="type_alcool_value" name="type_alcool_hidden">
+
+                <input list="list_references" type="text" id="references" name="references" required placeholder="Références de l'alcool">
+                <datalist id="list_references">
+                    <option value="Vodka pure grain triple distilled POLIAKOV 70 cL">
+                    <option value="Vodka pure grain triple distilled POLIAKOV 1L">
+                    <option value="Vodka pure grain triple distilled POLIAKOV 1.5L">
+                    <option value="Vodka pure grain triple distilled POLIAKOV 3L">
+                    <option value="Ricard 1L">
+                    <option value="Pastis 51 1L">
+                    <option value="Rivanis 1L">
+                    <option value="Ricard 70 cL">
+                    <option value="Pastis 51 70 cL">
+                    <option value="Rivanis 50 cL">
+                    <option value="Smirnoff 70 cL">
+                    <option value="Absolut 1L">
+                    <option value="Absolut 70 cL">
+                    <option value="Zubrowka 1L">
+                    <option value="Zubrowka 70 cL">
+                    <option value="Vikoroff 1L">
+                    <option value="Vikoroff 70 cL">
+                    <option value="Grimbergen ambrée 20*25 cL">
+                    <option value="Chouffe blonde fût 5L">
+                    <option value="Grimbergen blonde 20*25 cL">
+                    <option value="Grimbergen blonde 12*25 cL">
+                    <option value="Goudale blonde 20*25 cL">
+                    <option value="Goudale blonde 12*25 cL">
+                    <option value="Goudale ambrée 12*25 cL">
+                    <option value="Goudale blonde fût 5L">
+                    <option value="Affligem blonde 20*25 cL">
+                    <option value="Affligem blonde 12*25 cL">
+                    <option value="Affligem blonde fût 5L">
+                    <option value="La bête blonde 12*25 cL">
+                    <option value="Triple secret des moines blonde fût 5L">
+                    <option value="Leffe blonde 20*25 cL">
+                    <option value="Grimbergen ambrée 12*25 cL">
+                    <option value="Paix-Dieu 75 cL">
+                    <option value="La bête blonde 75 cL">
+                    <option value="Apéritif Noilly Prat, Original Dry 75 cL">
+                    <option value="Martini blanc 1L">
+                    <option value="Martini blanc 1,5L">
+                    <option value="Litchi SOHO 70 cL">
+                    <option value="CHARTREUSE 70 cL">
+                    <option value="Delirium blonde tremens 75 cL">
+                    <option value="Rhum blanc CHARRETTE 70 cL">
+                    <option value="Rhum blanc OLD NICK 70 cL">
+                    <option value="Rhum blanc SAINT JAMES 70 cL">
+                    <option value="Rhum paille SAINT JAMES 70 cL">
+                    <option value="Rhum ambré OLD NICK 70 cL">
+                    <option value="Rhum blanc OLD NICK 1L">
+                    <option value="Rhum ambré SAINT JAMES 70 cL">
+                    <option value="Rhum blanc CHARRETTE 1L">
+                    <option value="Rhum blanc SAINT JAMES 1L">
+                    <option value="Rhum ambré SAINT JAMES 1L">
+                    <option value="Tequila JOSE CUERVO 70 cL">
+                    <option value="Tequila SAN JOSE 70 cL">
+                    <option value="Get 27 70 cL">
+                    <option value="Gibson's gin 70 cL">
+                    <option value="Clairpastis 1,5 L">
+                    <option value="Sobieski 1 L">
+                    <option value="Sir Edward's 70 cL">
+                    <option value="Dillon 100 cL">
+                    <option value="Malibu 70 cL">
+                    <option value="Sobieski 70 cL">
+                    <option value="AOC Bordeaux 75 cL">
+                    <option value="Expert club, Pays d'Oc Sauvignon Croix du Pin 75 cL">
+                    <option value="Vin Rouge Communauté Européenne BEAUVAL 100 cL">
+                    <option value="Bayanis 70 cL">
+                    <option value="Bayanis 100 cL">
+                    <option value="Rhum blanc ST Simon 70 cL">
+                </datalist>
+                <input type="hidden" id="references_value" name="references_hidden"><br>
+
+                <input type="submit" class="submit_enregistrement" value="Enregistrer les données">
+            </form>
+        </div>
+    </div>
+
+
+    <div id="page-affichage" class="page">
+        <form action="" method="POST" class="affichage" id="affichage_form">
+            <input type="search" name="" placeholder="Que cherchez vous ?" required><br>
+
+            <div class="filtre_type_alcool">
+                <p>Quel type d'alcool voulez-vous afficher ?</p>
+                <label><input type="checkbox" value="vodka"> Vodka</label>
+                <label><input type="checkbox" value="bière_blonde"> Bière blonde</label>
+                <label><input type="checkbox" value="bière_ambrée"> Bière ambrée</label>
+                <label><input type="checkbox" value="whisky"> Whisky</label>
+                <label><input type="checkbox" value="rhum_blanc"> Rhum blanc</label>
+                <label><input type="checkbox" value="rhum_ambré"> Rhum ambré</label>
+                <label><input type="checkbox" value="rhum_coco"> Rhum coco</label>
+                <label><input type="checkbox" value="vin_rouge"> Vin rouge</label>
+                <label><input type="checkbox" value="vin_blanc"> Vin blanc</label>
+                <label><input type="checkbox" value="pastis"> Pastis</label>
+                <label><input type="checkbox" value="tequila"> Tequila</label>
+                <label><input type="checkbox" value="gin"> Gin</label>
+                <label><input type="checkbox" value="anisette"> Anisette</label>
+                <label><input type="checkbox" value="bieres_triple"> Bières triple</label>
+                <label><input type="checkbox" value="vermouth_sec"> Vermouth sec</label>
+                <label><input type="checkbox" value="soho"> Soho</label>
+                <label><input type="checkbox" value="chartreuse"> Chartreuse</label>
+                <label><input type="checkbox" value="get_27"> Get 27</label>
+            </div>
+        </form>
+        <br><br>
+        <div id="affichage_data">
+
+        </div>
+    </div>
+
+    <footer>
+        <div class="copyright_pole_fun">
+            <p>&copy; 2026 rQC. Tous droits réservés.</p>
+        </div>
+        <div class="social_media_links">
+            <p><a href="#">Instagram</a></p>
+        </div>
+    </footer>
+
+    <script>
+        let pageCourante = 'accueil';
+
+        function naviguer(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            pageCourante = page;
+
+            hamburger.classList.remove('open');
+            navLinks.classList.remove('active');
+        }
+
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', function () {
+            hamburger.classList.toggle('open');
+            navLinks.classList.toggle('active');
+        });
+
+        const dbRequest = indexedDB.open("bd_rqc", 1);
+
+        dbRequest.onupgradeneeded = function (e) {
+            const database = e.target.result;
+            if (!database.objectStoreNames.contains("data")) {
+                database.createObjectStore("data", { autoIncrement: true });
+            }
+        };
+
+        dbRequest.onsuccess = function (e) {
+            db = e.target.result;
+        };
+
+        document.getElementById("monFichier").addEventListener("change", function () {
+            const fileName = this.files[0]?.name ?? "Aucun fichier choisi";
+            document.querySelector(".file-name").textContent = fileName;
+        });
+
+        const typeMap = {
+            "Vodka": "vodka", "Bière blonde": "biere_blonde", "Bière ambrée": "biere_ambree",
+            "Whisky": "whisky", "Rhum blanc": "rhum_blanc", "Rhum ambré": "rhum_ambre",
+            "Rhum coco": "rhum_coco", "Vin rouge": "vin_rouge", "Vin blanc": "vin_blanc",
+            "Anisette": "anisette", "Pastis": "pastis", "Bières triple": "bieres_triple",
+            "Vermouth sec": "vermouth_sec", "Soho": "soho", "Chartreuse": "chartreuse",
+            "Tequila": "tequila", "Get 27": "get_27", "Gin": "gin"
+        };
+
+        document.getElementById("type_alcool").addEventListener("change", function () {
+            document.getElementById("type_alcool_value").value = typeMap[this.value] ?? this.value;
+        });
+
+        document.getElementById("enregistrement_form").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const prix = parseFloat(document.getElementById("prix").value);
+            const volume = parseFloat(document.getElementById("volume").value);
+            const degre = parseFloat(document.getElementById("degre").value);
+            const volume_alcool = parseFloat(((volume * degre) / 100).toFixed(2));
+            const masse_alcool = parseFloat((volume_alcool * 7.89).toFixed(2));
+            const rqc = parseFloat((prix * 100 / volume_alcool).toFixed(2));
+            const prix_litre = parseFloat((prix * 100 / volume).toFixed(2));
+
+            const donnees = {
+                prix, volume, degre,
+                magasin: document.getElementById("magasin").value,
+                type_alcool: document.getElementById("type_alcool").value,
+                references: document.getElementById("references").value,
+                ville: document.getElementById("ville").value,
+                volume_alcool, masse_alcool, rqc, prix_litre
+            };
+
+            const req = indexedDB.open("bd_rqc", 1);
+            req.onsuccess = function (e) {
+                const database = e.target.result;
+                const tx = database.transaction("data", "readwrite");
+                const store = tx.objectStore("data");
+                store.add(donnees);
+
+                tx.oncomplete = function () {
+                    alert("Données enregistrées avec succès !");
+                    document.getElementById("enregistrement_form").reset();
+                };
+
+                tx.onerror = function () {
+                    alert("Erreur lors de l'enregistrement : " + tx.error);
+                };
+            };
+        });
+
+        afficherDonnees();
+
+        function filtrer() {
+            const searchTerm = document.querySelector('input[type="search"]').value.toLowerCase();
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const selectedTypes = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+            document.querySelectorAll(".reference-item").forEach(function(refDiv) {
+                const ref = refDiv.dataset.ref.toLowerCase();
+                const type = refDiv.dataset.type.toLowerCase();
+
+                const matchSearch = ref.includes(searchTerm);
+                const matchType = selectedTypes.length === 0 || selectedTypes.includes(type);
+
+                refDiv.style.display = matchSearch && matchType ? "block" : "none";
+            });
+        }
+
+        document.getElementById("affichage_form").addEventListener("change", filtrer);
+
+        document.querySelector('input[type="search"]').addEventListener("input", filtrer);
+
+        function afficherDonnees() {
+            const req = indexedDB.open("bd_rqc", 1);
+            req.onsuccess = function (e) {
+                const db = e.target.result;
+                const tx = db.transaction("data", "readonly");
+                const store = tx.objectStore("data");
+                const getAll = store.getAll();
+                getAll.onsuccess = function () {
+                    const data = getAll.result;
+                    const affichageDiv = document.getElementById("affichage_data");
+                    affichageDiv.innerHTML = "";
+                    const groupedData = {};
+
+                    data.forEach(item => {
+                        if (!groupedData[item.references]) {
+                            groupedData[item.references] = [];
+                        }
+                        groupedData[item.references].push(item);
+                    });
+
+                    for (const ref in groupedData) {
+                        const refDiv = document.createElement("div");
+                        refDiv.classList.add("reference-item");
+                        refDiv.dataset.ref = ref;
+                        refDiv.dataset.type = typeMap[groupedData[ref][0].type_alcool] ?? groupedData[ref][0].type_alcool.toLowerCase();
+
+                        refDiv.innerHTML = `<a href="#" class="reference-link">${ref}</a><div class="details" style="display:none;"></div>`;
+                        affichageDiv.appendChild(refDiv);
+
+                        const detailsDiv = refDiv.querySelector(".details");
+
+                        const table = document.createElement("table");
+                        table.innerHTML = `
+                            <thead>
+                                <tr>
+                                    <th>Magasin</th>
+                                    <th>Ville</th>
+                                    <th>Prix</th>
+                                    <th>Volume</th>
+                                    <th>Degré</th>
+                                    <th>RQC</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        `;
+                        detailsDiv.appendChild(table);
+                        const tbody = table.querySelector("tbody");
+
+                        groupedData[ref].forEach(entry => {
+                            const tr = document.createElement("tr");
+                            tr.innerHTML = `
+                                <td>${entry.magasin}</td>
+                                <td>${entry.ville}</td>
+                                <td>${entry.prix}€</td>
+                                <td>${entry.volume}cL</td>
+                                <td>${entry.degre}°</td>
+                                <td>${entry.rqc} €/L</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+
+                        refDiv.querySelector(".reference-link").addEventListener("click", function (e) {
+                            e.preventDefault();
+                            detailsDiv.style.display = detailsDiv.style.display === "none" ? "block" : "none";
+                        });
+                    }
+                };
+            };
+        }
+
+        function supprimerRef(id) {
+            const req = indexedDB.open("bd_rqc", 1);
+            req.onsuccess = function (e) {
+                const db = e.target.result;
+                const tx = db.transaction("data", "readwrite");
+                const store = tx.objectStore("data");
+                store.delete(id);
+
+                tx.oncomplete = function () {
+                    alert("Donnée supprimée avec succès !");
+                    afficherDonnees();
+                };
+
+                tx.onerror = function () {
+                    alert("Erreur lors de la suppression : " + tx.error);
+                };
+            };
+        }
+
+
+        function exporterBD() {
+            const req = indexedDB.open("bd_rqc", 1);
+            req.onsuccess = function (e) {
+                const database = e.target.result;
+                const tx = database.transaction("data", "readonly");
+                const store = tx.objectStore("data");
+                const getAll = store.getAll();
+
+                getAll.onsuccess = function () {
+                    const json = JSON.stringify(getAll.result, null, 2);
+                    const blob = new Blob([json], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "bd_rqc.json";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                };
+            };
+        }
+
+        function importerBD() {
+            const fileInput = document.getElementById("monFichier");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Choisis un fichier !");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const data = JSON.parse(event.target.result);
+                const req = indexedDB.open("bd_rqc", 1);
+                req.onsuccess = function (e) {
+                    const database = e.target.result;
+                    const tx = database.transaction("data", "readwrite");
+                    const store = tx.objectStore("data");
+                    store.clear();
+                    data.forEach(item => store.put(item));
+                    tx.oncomplete = function () {
+                        alert("Import terminé !");
+                        document.querySelector(".file-name").textContent = "Aucun fichier choisi";
+                        fileInput.value = "";
+                    };
+                };
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>

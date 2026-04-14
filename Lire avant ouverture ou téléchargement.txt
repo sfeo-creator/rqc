@@ -1,0 +1,1 @@
+coder l'export pour le partage puis l'ajout et le remove de data avec l'actualisation des prix en prenant la date automatiquement du jours d'ajout pour avoir les plus anciennes versions puis coder les graphs tableaux etc

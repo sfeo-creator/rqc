@@ -1,0 +1,41 @@
+[
+  {
+    "prix": 11.19,
+    "volume": 70,
+    "degre": 37.5,
+    "magasin": "Carrefour",
+    "type_alcool": "Vodka",
+    "references": "Vodka pure grain triple distilled POLIAKOV 70 cL",
+    "ville": "Claye Souilly",
+    "volume_alcool": 26.25,
+    "masse_alcool": 207.11,
+    "rqc": 42.63,
+    "prix_litre": 15.99
+  },
+  {
+    "prix": 11.23,
+    "volume": 70,
+    "degre": 37.5,
+    "magasin": "Intermarché",
+    "type_alcool": "Vodka",
+    "references": "Vodka pure grain triple distilled POLIAKOV 70 cL",
+    "ville": "Gif-sur-Yvette/Moulon",
+    "volume_alcool": 26.25,
+    "masse_alcool": 207.11,
+    "rqc": 42.78,
+    "prix_litre": 16.04
+  },
+  {
+    "prix": 11.29,
+    "volume": 70,
+    "degre": 40,
+    "magasin": "Intermarché",
+    "type_alcool": "Rhum blanc",
+    "references": "Rhum blanc SAINT JAMES 70 cL",
+    "ville": "Gif-sur-Yvette/Moulon",
+    "volume_alcool": 28,
+    "masse_alcool": 220.92,
+    "rqc": 40.32,
+    "prix_litre": 16.13
+  }
+]
