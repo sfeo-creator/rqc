@@ -640,6 +640,8 @@
             if (page === "affichage" && !mapInitialisee) {
                 map = L.map('map').setView([48.713846108052415, 2.1954199915880164], 14);
                 
+                add_base();
+                add_dep();
                 
                 mapInitialisee = true;
             }
