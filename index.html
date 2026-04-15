@@ -16,10 +16,13 @@
             font-family: Arial, sans-serif;
             padding: 0;
             margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        .page{
-            margin-bottom: 50px;
+        .page {
+            margin-bottom: 60px;
         }
 
         .navbar {
@@ -182,7 +185,6 @@
             background-color: #333;
             color: white;
             padding: 20px 40px;
-            bottom: 0;
             width: 100%;
             display: flex;
             justify-content: space-between;
@@ -205,12 +207,12 @@
 
         .page.active {
             display: block;
+            flex: 1;
         }
 
         div#page-accueil {
             justify-content: center;
             align-items: center;
-            margin-top: 50px;
             padding: 0 20px;
         }
         div#page-accueil div {
