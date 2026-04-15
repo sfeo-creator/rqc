@@ -639,7 +639,18 @@
             navLinks.classList.remove('active');
             if (page === "affichage" && !mapInitialisee) {
                 map = L.map('map').setView([48.713846108052415, 2.1954199915880164], 14);
-                L.tileLayer('https://data.geopf.fr/wmts?'+'&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&TILEMATRIXSET=PM'+'&LAYER={ignLayer}&STYLE={style}&FORMAT={format}'+'&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}',
+                
+                
+                mapInitialisee = true;
+            }
+
+            if (page === "affichage" && map) {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
+        }
+
+        function add_base() {
+            L.tileLayer('https://data.geopf.fr/wmts?'+'&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&TILEMATRIXSET=PM'+'&LAYER={ignLayer}&STYLE={style}&FORMAT={format}'+'&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}',
                 {
                     ignLayer: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2',
                     style: 'normal',
@@ -648,12 +659,21 @@
                     opacity: 0.4,
                     attribution: 'Carte IGN/Geoplateforme'
                 }).addTo(map);
-                mapInitialisee = true;
-            }
+        }
 
-            if (page === "affichage" && map) {
-                setTimeout(() => map.invalidateSize(), 100);
-            }
+        function add_dep() {
+            var dep = new L.Shapefile('data/DEPART_WGS84.zip',{
+                onEachFeature: function(feature, layer) {
+                    layer.bindPopup(feature.properties.nom);
+                },
+                style: function(feature) {
+                    return {
+                            color: 'blue',
+                            weight: 1,
+                            fillColor: 'transparent'
+                        };
+                    }
+                }).addTo(map);
         }
 
         const hamburger = document.getElementById('hamburger');
