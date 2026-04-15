@@ -399,22 +399,11 @@
             overflow-x: auto;
         }
 
-        div#page-affichage{
-        }
-
         div#map {
             height: 400px;
             width: 50%;
             margin: 50px 0px 20px 0px ;
             justify-self: center;
-        }
-
-        form.affichage {
-
-        }
-
-        div#affichage_data {
-
         }
     </style>
 </head>
@@ -642,6 +631,7 @@
                 
                 add_base();
                 add_dep();
+                setMarkers(data);
                 
                 mapInitialisee = true;
             }
@@ -676,6 +666,15 @@
                         };
                     }
                 }).addTo(map);
+        }
+
+        function setMarkers(data) {
+            data.forEach(item => {
+                if (item.ville && item.ville.trim() !== "") {
+                    const marker = L.marker([item.latitude, item.longitude]).addTo(map);
+                    marker.bindPopup(`<b>${item.references}</b><br>Magasin: ${item.magasin}<br>Ville: ${item.ville}<br>Prix: ${item.prix}€<br>Volume: ${item.volume}cL<br>Degré: ${item.degre}°<br>RQC: ${item.rqc} €/L<br>Date: ${item.date ?? "—"}`);
+                }
+            });
         }
 
         const hamburger = document.getElementById('hamburger');
