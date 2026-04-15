@@ -6,9 +6,6 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <script src="https://unpkg.com/shpjs@latest/dist/shp.min.js"></script>
-    <script src="https://unpkg.com/leaflet-shapefile@0.2.0/leaflet.shapefile.js"></script>
 
     <title>rQC</title>
     <style>
@@ -659,18 +656,41 @@
         }
 
         function add_dep() {
-            var dep = new L.Shapefile('data/DEPART_WGS84.zip',{
-                onEachFeature: function(feature, layer) {
-                    layer.bindPopup(feature.properties.nom);
-                },
-                style: function(feature) {
-                    return {
-                            color: 'blue',
-                            weight: 1,
-                            fillColor: 'transparent'
-                        };
-                    }
-                }).addTo(map);
+            fetch("https://geo.api.gouv.fr/departements?geometry=contour&format=geojson")
+                .then(res => res.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        style: function(feature) {
+                            return {
+                                color: 'blue',
+                                weight: 1,
+                                fillOpacity: 0
+                            };
+                        },
+                        onEachFeature: function(feature, layer) {
+                            layer.bindPopup(feature.properties.nom);
+                        }
+                    }).addTo(map);
+                });
+        }
+
+        function addCom () {
+            fetch("https://geo.api.gouv.fr/communes?geometry=contour&format=geojson")
+                .then(res => res.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        style: function(feature) {
+                            return {
+                                color: 'blue',
+                                weight: 1,
+                                fillOpacity: 0
+                            };
+                        },
+                        onEachFeature: function(feature, layer) {
+                            layer.bindPopup(feature.properties.nom);
+                        }
+                    }).addTo(map);
+                });
         }
 
         function chargerEtAfficherMarkers() {
