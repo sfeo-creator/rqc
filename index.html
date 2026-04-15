@@ -631,8 +631,8 @@
                 
                 add_base();
                 add_dep();
-                setMarkers(data);
-                
+                chargerEtAfficherMarkers();
+
                 mapInitialisee = true;
             }
 
@@ -668,11 +668,48 @@
                 }).addTo(map);
         }
 
+        function chargerEtAfficherMarkers() {
+            const req = indexedDB.open("bd_rqc", 1);
+            req.onsuccess = function (e) {
+                const db = e.target.result;
+                const tx = db.transaction("data", "readonly");
+                const store = tx.objectStore("data");
+                const getAll = store.getAll();
+
+                getAll.onsuccess = function () {
+                    const data = getAll.result;
+                    setMarkers(data);
+                };
+            };
+        }
+
+        function getCoords(ville) {
+            return fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${ville}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+                    } else {
+                        return null;
+                    }
+                });
+        }
+
         function setMarkers(data) {
             data.forEach(item => {
-                if (item.ville && item.ville.trim() !== "") {
-                    const marker = L.marker([item.latitude, item.longitude]).addTo(map);
-                    marker.bindPopup(`<b>${item.references}</b><br>Magasin: ${item.magasin}<br>Ville: ${item.ville}<br>Prix: ${item.prix}€<br>Volume: ${item.volume}cL<br>Degré: ${item.degre}°<br>RQC: ${item.rqc} €/L<br>Date: ${item.date ?? "—"}`);
+                if (item.ville) {
+                    getCoords(item.ville).then(coords => {
+                        if (coords) {
+                            const marker = L.marker(coords).addTo(map);
+                            marker.bindPopup(`
+                                <b>${item.references}</b><br>
+                                Magasin: ${item.magasin}<br>
+                                Ville: ${item.ville}<br>
+                                Prix: ${item.prix}€<br>
+                                RQC: ${item.rqc} €/L
+                            `);
+                        }
+                    });
                 }
             });
         }
