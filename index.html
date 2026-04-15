@@ -21,7 +21,7 @@
         }
 
         .navbar {
-            background-color: #333;
+            background-color: #333333c5;
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
@@ -708,35 +708,47 @@
             };
         }
 
-        function getCoords(ville) {
-            return fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${ville}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-                    } else {
-                        return null;
-                    }
-                });
+        async function searchSupermarket(brand, lat, lon) {
+            const safeBrand = brand.replace(/"/g, '\\"');
+
+            const query = `
+                [out:json];
+                node["shop"="supermarket"]["name"~"${safeBrand}", i](around:2000,${lat},${lon});
+                out;
+            `;
+
+            const res = await fetch("https://overpass-api.de/api/interpreter", {
+                method: "POST",
+                body: query
+            });
+
+            const data = await res.json();
+
+            return data.elements.map(el => ({
+                name: el.tags?.name || "Sans nom",
+                lat: el.lat,
+                lon: el.lon
+            }));
         }
 
-        function setMarkers(data) {
-            data.forEach(item => {
-                if (item.ville) {
-                    getCoords(item.ville).then(coords => {
-                        if (coords) {
-                            const marker = L.marker(coords).addTo(map);
-                            marker.bindPopup(`
-                                <b>${item.references}</b><br>
-                                Magasin: ${item.magasin}<br>
-                                Ville: ${item.ville}<br>
-                                Prix: ${item.prix}€<br>
-                                RQC: ${item.rqc} €/L
-                            `);
-                        }
-                    });
+        async function setMarkers(data) {
+            for (const item of data) {
+                if (!item.ville) continue;
+
+                const coords = await getCoords(item.ville);
+
+                if (coords) {
+                    const marker = L.marker(coords).addTo(map);
+
+                    marker.bindPopup(`
+                        <b>${item.references}</b><br>
+                        Magasin: ${item.magasin}<br>
+                        Ville: ${item.ville}<br>
+                        Prix: ${item.prix}€<br>
+                        RQC: ${item.rqc} €/L
+                    `);
                 }
-            });
+            }
         }
 
         const hamburger = document.getElementById('hamburger');
