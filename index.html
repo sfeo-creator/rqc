@@ -9,7 +9,10 @@
 
     <title>rQC</title>
     <style>
+        
+
         body {
+            --nav_color: #424242;
             font-family: Arial, sans-serif;
             padding: 0;
             margin: 0;
@@ -20,7 +23,7 @@
         }
 
         .navbar {
-            background-color: #333333c5;
+            background-color: var(--nav_color);
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
@@ -122,7 +125,7 @@
                 top: 55px;
                 left: 0;
                 width: 100%;
-                background-color: #333333c5;
+                background-color: var(--nav_color);
                 flex-direction: column;
                 display: none;
                 padding: 0;
