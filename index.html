@@ -463,7 +463,7 @@
 
     <div id="page-enregistrement" class="page">
         <h3 style="color: #d32f2f; font-weight: bold; font-size: 2.3em; text-align: center; margin: 30px 30px 0px 30px;">Attention à toujours utiliser la référence, le magasin et la ville proposée si c'est proposé pour éviter des doublons dur à supprimer !!!! Si vous devez créer une nouvelle entrée, veillez à respecter au maximum le format avec nom de la bouteille + volume pour les référence et a être précis dans les villes aussi (exemple : "Ricard 1L" et "Gif-sur-Yvette/Moullon").</h3>
-        
+
         <div class="form">
             <form class="enregistrement_form" id="enregistrement_form">
                 <input list="list_references" type="text" id="references" name="references" required placeholder="Références de l'alcool">
@@ -610,8 +610,9 @@
                 <label><input type="checkbox" value="chartreuse"> Chartreuse</label>
                 <label><input type="checkbox" value="get_27"> Get 27</label>
             </div>
-        </form>
-        <br><br>
+        </form><br>
+        <p id="nombre_donnees" style="text-align: center;"></p>
+        <br>
         <div id="affichage_data">
 
         </div>
@@ -628,10 +629,24 @@
 
     <script>
         
+        const requete = indexedDB.open("bd_rqc", 1);
+        requete.onsuccess = function (e) {
+            const db = e.target.result;
+            const tx = db.transaction("data", "readonly");
+            const store = tx.objectStore("data");
+            const getAll = store.getAll();
+
+            getAll.onsuccess = function () {
+                const data = getAll.result;
+                const nombre_données =data.length;
+                const html_data = document.getElementById("nombre_donnees");
+                html_data.textContent = `Nombre total de données : ${nombre_données}`;
+
+            };
+        };
 
 
-
-        //rajouter le même principe avec les références et les types d'alcool pour éviter les doublons dans ces catégories aussi
+        
         function remplirDatalist(datalist, valeurs) {
             const existants = new Set([...datalist.options].map(opt => opt.value));
 

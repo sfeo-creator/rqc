@@ -292,5 +292,19 @@
     "rqc": 37.84,
     "prix_litre": 17.03,
     "date": "16/04/2026"
+  },
+  {
+    "prix": 6.49,
+    "volume": 500,
+    "degre": 11,
+    "magasin": "Intermarché",
+    "type_alcool": "Vin rouge",
+    "references": "François d'Aubigné vin rouge 5L",
+    "ville": "Massy",
+    "volume_alcool": 55,
+    "masse_alcool": 433.95,
+    "rqc": 11.8,
+    "prix_litre": 1.3,
+    "date": "16/04/2026"
   }
 ]
