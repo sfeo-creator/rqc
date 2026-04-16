@@ -9,8 +9,6 @@
 
     <title>rQC</title>
     <style>
-        
-
         body {
             --nav_color: #424242;
             font-family: Arial, sans-serif;
@@ -871,17 +869,29 @@
         function afficherDonnees() {
             const req = indexedDB.open("bd_rqc", 1);
             req.onsuccess = function (e) {
+
                 const db = e.target.result;
                 const tx = db.transaction("data", "readonly");
                 const store = tx.objectStore("data");
+
                 const getAll = store.getAll();
-                getAll.onsuccess = function () {
-                    const data = getAll.result;
+                const getAllKeys = store.getAllKeys();
+
+                let dataResult = null;
+                let keysResult = null;
+
+                function tryRender() {
+                    if (dataResult === null || keysResult === null) return;
+
+                    dataResult.forEach((item, index) => {
+                        item._key = keysResult[index];
+                    });
+
                     const affichageDiv = document.getElementById("affichage_data");
                     affichageDiv.innerHTML = "";
                     const groupedData = {};
 
-                    data.forEach(item => {
+                    dataResult.forEach(item => {
                         if (!groupedData[item.references]) {
                             groupedData[item.references] = [];
                         }
@@ -910,6 +920,7 @@
                                     <th>Degré</th>
                                     <th>RQC</th>
                                     <th>Date de mise à jour</th>
+                                    <th>Suppression</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -927,6 +938,7 @@
                                 <td>${entry.degre}°</td>
                                 <td>${entry.rqc} €/L</td>
                                 <td>${entry.date ?? "—"}</td>
+                                <td><button onclick="supprimerRef(${entry._key})">Supprimer</button></td>
                             `;
                             tbody.appendChild(tr);
                         });
@@ -936,6 +948,15 @@
                             detailsDiv.style.display = detailsDiv.style.display === "none" ? "block" : "none";
                         });
                     }
+                };
+                getAll.onsuccess = function () {
+                    dataResult = getAll.result;
+                    tryRender();
+                };
+
+                getAllKeys.onsuccess = function () {
+                    keysResult = getAllKeys.result;
+                    tryRender();
                 };
             };
         }
