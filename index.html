@@ -20,7 +20,7 @@
         }
 
         .navbar {
-            background-color: #333;
+            background-color: #f5aade;
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
@@ -679,6 +679,73 @@
         verifierConnexion();
 
         // ============================================================
+        //  MISE A JOUR AUTOMATIQUE DES DATALISTS
+        // ============================================================
+        //  Au chargement et apres chaque enregistrement, on recupere
+        //  toutes les valeurs uniques de la base et on les ajoute
+        //  aux datalists si elles n'y sont pas deja.
+        //  Comme ca, quand quelqu'un ajoute un nouveau magasin ou
+        //  une nouvelle reference, tout le monde la voit en suggestion.
+        // ============================================================
+        async function mettreAJourDatalists() {
+            const { data, error } = await db
+                .from('data')
+                .select('reference, magasin, ville, type_alcool');
+
+            if (error || !data) return;
+
+            // On extrait les valeurs uniques pour chaque champ
+            const uniqueRefs = [...new Set(data.map(d => d.reference).filter(Boolean))];
+            const uniqueMagasins = [...new Set(data.map(d => d.magasin).filter(Boolean))];
+            const uniqueVilles = [...new Set(data.map(d => d.ville).filter(Boolean))];
+            const uniqueTypes = [...new Set(data.map(d => d.type_alcool).filter(Boolean))];
+
+            // Fonction utilitaire : ajoute les valeurs manquantes a un datalist
+            function completerDatalist(datalistId, valeurs) {
+                const datalist = document.getElementById(datalistId);
+                if (!datalist) return;
+
+                // On recupere les valeurs deja presentes dans le datalist
+                const existantes = new Set(
+                    Array.from(datalist.options).map(opt => opt.value)
+                );
+
+                // On ajoute celles qui manquent
+                valeurs.forEach(val => {
+                    if (!existantes.has(val)) {
+                        const option = document.createElement('option');
+                        option.value = val;
+                        datalist.appendChild(option);
+                    }
+                });
+            }
+
+            completerDatalist('list_references', uniqueRefs);
+            completerDatalist('list_type_alcool', uniqueTypes);
+
+            // Pour magasin et ville, on cree des datalists s'ils n'existent pas encore
+            // (ils n'en avaient pas dans le code original)
+            if (!document.getElementById('list_magasins')) {
+                const dl = document.createElement('datalist');
+                dl.id = 'list_magasins';
+                document.body.appendChild(dl);
+                document.getElementById('magasin').setAttribute('list', 'list_magasins');
+            }
+            completerDatalist('list_magasins', uniqueMagasins);
+
+            if (!document.getElementById('list_villes')) {
+                const dl = document.createElement('datalist');
+                dl.id = 'list_villes';
+                document.body.appendChild(dl);
+                document.getElementById('ville').setAttribute('list', 'list_villes');
+            }
+            completerDatalist('list_villes', uniqueVilles);
+        }
+
+        // Chargement initial des datalists
+        mettreAJourDatalists();
+
+        // ============================================================
         //  ENREGISTREMENT DES DONNEES
         // ============================================================
         document.getElementById("enregistrement_form").addEventListener("submit", async function (e) {
@@ -743,6 +810,7 @@
             } else {
                 alert("Données enregistrées avec succès !");
                 document.getElementById("enregistrement_form").reset();
+                mettreAJourDatalists(); // Rafraichir les suggestions
             }
         });
 
