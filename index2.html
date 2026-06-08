@@ -6,7 +6,6 @@
     <title>rQC</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
     <style>
         body {
@@ -173,8 +172,8 @@
 
         footer {
             background-color: #f5aade;
-            color: white;
-            padding: 20px 40px;
+            color: rgb(64, 179, 255);
+            padding: 5px 40px;
             position: fixed;
             bottom: 0;
             width: 100%;
@@ -190,7 +189,7 @@
         }
 
         footer a {
-            color: white; text-decoration: none;
+            color: rgb(64, 179, 255); text-decoration: none;
         }
 
         .page {
@@ -204,7 +203,7 @@
         div#page-accueil {
             justify-content: center;
             align-items: center;
-            margin-top: 50px;
+            margin-top: 25px;
             padding: 0 20px;
         }
         div#page-accueil div {
@@ -421,130 +420,6 @@
             color: #666;
             font-style: italic;
         }
-
-        .geoloc-button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-bottom: 15px;
-            width: 100%;
-        }
-
-        .geoloc-button:hover {
-            background-color: #43A047;
-        }
-
-        .geoloc-button:disabled {
-            background-color: #ccc;
-            cursor: wait;
-        }
-
-        .proximity-filter {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 12px 15px;
-            margin: 10px 0;
-        }
-
-        .proximity-filter label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .proximity-filter .slider-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .proximity-filter input[type="range"] {
-            flex: 1;
-        }
-
-        .proximity-filter .distance-val {
-            min-width: 55px;
-            font-weight: bold;
-            text-align: right;
-        }
-
-        .distance-badge {
-            font-size: 0.8em;
-            color: #4CAF50;
-            font-weight: bold;
-            margin-left: 8px;
-        }
-
-        .scan-button {
-            background-color: #FF9800;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-bottom: 15px;
-            width: 100%;
-        }
-
-        .scan-button:hover {
-            background-color: #F57C00;
-        }
-
-        .scanner-container {
-            display: none;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .scanner-container.active {
-            display: block;
-        }
-
-        #scanner-view {
-            width: 100%;
-            min-height: 250px;
-        }
-
-        .scanner-stop {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            width: 100%;
-            margin-top: 8px;
-        }
-
-        .scanner-result {
-            background-color: #e8f5e9;
-            border: 1px solid #4CAF50;
-            border-radius: 6px;
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            font-size: 0.9em;
-            display: none;
-        }
-
-        .scanner-result.error {
-            background-color: #ffebee;
-            border-color: #f44336;
-        }
-
-        .scanner-result.active {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -571,7 +446,8 @@
                 Le rQC c'est le prix de l'alcool pur d'une bouteille rapporté à un litre.<br>
                 Il permet de savoir à quel prix est la race que je me mets.<br><br>
                 Les données sont maintenant stockées <strong>en ligne</strong> : tout le monde partage la même base de données en temps réel.<br>
-                Plus besoin d'importer ou d'exporter des fichiers JSON !<br><br>
+                <br>
+                <h3 style="color: #d32f2f; font-weight: bold; font-size: 2.3em; margin: 0px 70px;">Attention à toujours utiliser la référence, le magasin et la ville proposée si c'est proposé pour éviter des doublons dur à supprimer !!!! Si vous devez créer une nouvelle entrée, veillez à respecter au maximum le format avec nom de la bouteille + volume pour les référence et a être précis dans les villes aussi (exemple : "Ricard 1L" et "Gif-sur-Yvette/Moullon").</h3><br>
                 Utilisez le menu <strong>"Affichage des données"</strong> pour consulter et rechercher les données,<br>
                 et le menu <strong>"Enregistrement des données"</strong> pour en ajouter de nouvelles.<br>
                 Chaque ajout est immédiatement visible par tous les utilisateurs.
@@ -584,23 +460,17 @@
     </div>
 
     <div id="page-enregistrement" class="page">
+
+        <h3 style="color: #d32f2f; font-weight: bold; font-size: 2.3em; text-align: center; margin: 50px 100px 40px 100px;">Attention à toujours utiliser la référence, le magasin et la ville proposée si c'est proposé pour éviter des doublons dur à supprimer !!!! Si vous devez créer une nouvelle entrée, veillez à respecter au maximum le format avec nom de la bouteille + volume pour les référence et a être précis dans les villes aussi (exemple : "Ricard 1L" et "Gif-sur-Yvette/Moullon").</h3>
+
         <div class="form">
             <form class="enregistrement_form" id="enregistrement_form">
-                <button type="button" class="scan-button" id="btnScan" onclick="lancerScanner()">📷 Scanner un code-barres</button>
-                <div class="scanner-container" id="scannerContainer">
-                    <div id="scanner-view"></div>
-                    <button type="button" class="scanner-stop" onclick="arreterScanner()">Arrêter le scanner</button>
-                </div>
-                <div class="scanner-result" id="scanResult"></div>
-
+                <button id="scanner">📷 Scanner un code-barres</button>
                 <input type="number" id="prix" name="prix" step="0.01" required placeholder="Prix de la bouteille (en €)"><br>
                 <input type="number" id="volume" name="volume" step="0.01" required placeholder="Volume de la bouteille (en cL)">
                 <input type="number" id="degre" name="degre" step="0.01" required placeholder="Degré de l'alcool (en °)"><br>
                 <input type="text" id="magasin" name="magasin" required placeholder="Magasin d'achat">
-                <input type="text" id="ville" name="ville" required placeholder="Ville d'achat">
-                <button type="button" class="geoloc-button" id="btnGeoloc" onclick="meLocaliser()">📍 Me localiser (remplir la ville automatiquement)</button>
-                <input type="hidden" id="latitude" name="latitude">
-                <input type="hidden" id="longitude" name="longitude">
+                <input type="text" id="ville" name="ville" required placeholder="Ville d'achat"><br>
 
                 <input list="list_type_alcool" type="text" id="type_alcool" name="type_alcool" required placeholder="Type d'alcool">
                 <datalist id="list_type_alcool">
@@ -725,19 +595,6 @@
                 <label><input type="checkbox" value="chartreuse"> Chartreuse</label>
                 <label><input type="checkbox" value="get_27"> Get 27</label>
             </div>
-
-            <div class="proximity-filter">
-                <label>
-                    <input type="checkbox" id="filtreProximite" onchange="filtrer()">
-                    📍 Afficher uniquement les résultats près de moi
-                </label>
-                <div class="slider-row" id="sliderProximite" style="display:none;">
-                    <span>Rayon :</span>
-                    <input type="range" id="distanceMax" min="1" max="100" value="20" step="1" oninput="updateDistanceLabel(); filtrer();">
-                    <span class="distance-val" id="distanceLabel">20 km</span>
-                </div>
-                <div id="geolocStatus" style="font-size:0.85em;color:#666;margin-top:6px;"></div>
-            </div>
         </form>
         <br><br>
         <div id="affichage_data"></div>
@@ -801,311 +658,6 @@
         document.getElementById("type_alcool").addEventListener("change", function () {
             document.getElementById("type_alcool_value").value = typeMap[this.value] ?? this.value;
         });
-
-        // ============================================================
-        //  GEOLOCALISATION
-        // ============================================================
-        // Position de l'utilisateur (pour le filtre de proximite)
-        let userLat = null;
-        let userLng = null;
-
-        // Formule de Haversine : calcule la distance en km entre 2 points GPS
-        function calculerDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371; // rayon de la Terre en km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2)
-                    + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
-                    * Math.sin(dLng/2) * Math.sin(dLng/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        // Bouton "Me localiser" dans le formulaire d'enregistrement
-        async function meLocaliser() {
-            const btn = document.getElementById('btnGeoloc');
-            btn.disabled = true;
-            btn.textContent = '📍 Localisation en cours...';
-
-            if (!navigator.geolocation) {
-                alert("Votre navigateur ne supporte pas la géolocalisation.");
-                btn.disabled = false;
-                btn.textContent = '📍 Me localiser (remplir la ville automatiquement)';
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                async function(position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-
-                    // On stocke les coordonnees dans les champs caches
-                    document.getElementById('latitude').value = lat;
-                    document.getElementById('longitude').value = lng;
-
-                    // Reverse geocoding via Nominatim (OpenStreetMap, gratuit)
-                    try {
-                        const resp = await fetch(
-                            'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=14&addressdetails=1',
-                            { headers: { 'Accept-Language': 'fr' } }
-                        );
-                        const geo = await resp.json();
-
-                        // On recupere le nom de la ville
-                        const ville = geo.address.city
-                            || geo.address.town
-                            || geo.address.village
-                            || geo.address.municipality
-                            || '';
-
-                        document.getElementById('ville').value = ville;
-                        btn.textContent = '📍 Localisé : ' + ville;
-                    } catch (err) {
-                        btn.textContent = '📍 Position GPS OK (ville non trouvée)';
-                        console.error('Erreur reverse geocoding :', err);
-                    }
-
-                    btn.disabled = false;
-                },
-                function(error) {
-                    btn.disabled = false;
-                    btn.textContent = '📍 Me localiser (remplir la ville automatiquement)';
-                    if (error.code === 1) {
-                        alert("Vous avez refusé la géolocalisation. Activez-la dans les paramètres de votre navigateur.");
-                    } else {
-                        alert("Impossible de vous localiser : " + error.message);
-                    }
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-        }
-
-        // Demander la position pour le filtre de proximite
-        function demanderPositionFiltre() {
-            const statusEl = document.getElementById('geolocStatus');
-            const sliderEl = document.getElementById('sliderProximite');
-            const checkbox = document.getElementById('filtreProximite');
-
-            if (!checkbox.checked) {
-                sliderEl.style.display = 'none';
-                statusEl.textContent = '';
-                filtrer();
-                return;
-            }
-
-            if (userLat && userLng) {
-                sliderEl.style.display = 'flex';
-                statusEl.textContent = '📍 Position acquise';
-                filtrer();
-                return;
-            }
-
-            statusEl.textContent = 'Localisation en cours...';
-
-            if (!navigator.geolocation) {
-                statusEl.textContent = 'Géolocalisation non supportée';
-                checkbox.checked = false;
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    userLat = position.coords.latitude;
-                    userLng = position.coords.longitude;
-                    sliderEl.style.display = 'flex';
-                    statusEl.textContent = '📍 Position acquise';
-                    filtrer();
-                },
-                function(error) {
-                    statusEl.textContent = 'Impossible de vous localiser';
-                    checkbox.checked = false;
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-        }
-
-        // Mettre a jour le label du slider
-        function updateDistanceLabel() {
-            document.getElementById('distanceLabel').textContent = document.getElementById('distanceMax').value + ' km';
-        }
-
-        // Ecouter le changement de la checkbox de proximite
-        document.addEventListener('DOMContentLoaded', function() {
-            const cb = document.getElementById('filtreProximite');
-            if (cb) cb.addEventListener('change', demanderPositionFiltre);
-        });
-
-        // ============================================================
-        //  SCANNER DE CODE-BARRES + OPEN FOOD FACTS
-        // ============================================================
-        let html5QrCode = null;
-
-        function lancerScanner() {
-            const container = document.getElementById('scannerContainer');
-            const resultDiv = document.getElementById('scanResult');
-            container.classList.add('active');
-            resultDiv.classList.remove('active');
-
-            html5QrCode = new Html5Qrcode("scanner-view");
-
-            html5QrCode.start(
-                { facingMode: "environment" }, // Camera arriere du telephone
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 100 }, // Zone de scan en rectangle (code-barres)
-                    formatsToSupport: [
-                        Html5QrcodeSupportedFormats.EAN_13,
-                        Html5QrcodeSupportedFormats.EAN_8,
-                        Html5QrcodeSupportedFormats.UPC_A,
-                        Html5QrcodeSupportedFormats.UPC_E
-                    ]
-                },
-                function(decodedText) {
-                    // Code-barres detecte !
-                    arreterScanner();
-                    rechercherProduit(decodedText);
-                },
-                function(errorMessage) {
-                    // Scan en cours, pas encore detecte (normal)
-                }
-            ).catch(function(err) {
-                container.classList.remove('active');
-                resultDiv.textContent = "Impossible d'accéder à la caméra : " + err;
-                resultDiv.className = 'scanner-result error active';
-            });
-        }
-
-        function arreterScanner() {
-            const container = document.getElementById('scannerContainer');
-            if (html5QrCode) {
-                html5QrCode.stop().then(function() {
-                    html5QrCode.clear();
-                    container.classList.remove('active');
-                }).catch(function() {
-                    container.classList.remove('active');
-                });
-            } else {
-                container.classList.remove('active');
-            }
-        }
-
-        async function rechercherProduit(barcode) {
-            const resultDiv = document.getElementById('scanResult');
-            resultDiv.textContent = 'Recherche du produit ' + barcode + '...';
-            resultDiv.className = 'scanner-result active';
-
-            try {
-                const resp = await fetch(
-                    'https://world.openfoodfacts.org/api/v2/product/' + barcode + '.json'
-                );
-                const data = await resp.json();
-
-                if (data.status === 0 || !data.product) {
-                    resultDiv.textContent = 'Produit non trouvé dans Open Food Facts (code : ' + barcode + '). Remplissez les champs manuellement.';
-                    resultDiv.className = 'scanner-result error active';
-                    return;
-                }
-
-                const produit = data.product;
-                remplirFormulaire(produit, barcode);
-
-            } catch (err) {
-                resultDiv.textContent = 'Erreur réseau lors de la recherche : ' + err.message;
-                resultDiv.className = 'scanner-result error active';
-                console.error('Erreur Open Food Facts :', err);
-            }
-        }
-
-        function remplirFormulaire(produit, barcode) {
-            const resultDiv = document.getElementById('scanResult');
-
-            // --- REFERENCE ---
-            // On prend le nom du produit + la quantite
-            let ref = produit.product_name || '';
-            if (produit.brands) {
-                // Ajouter la marque si elle n'est pas deja dans le nom
-                if (!ref.toLowerCase().includes(produit.brands.toLowerCase())) {
-                    ref = produit.brands + ' ' + ref;
-                }
-            }
-            if (produit.quantity) {
-                ref = ref + ' ' + produit.quantity;
-            }
-            ref = ref.trim();
-            document.getElementById('references').value = ref;
-
-            // --- VOLUME ---
-            // Open Food Facts stocke la quantite sous forme de texte ("70 cl", "1 L", etc.)
-            let volume = '';
-            if (produit.quantity) {
-                const q = produit.quantity.toLowerCase();
-                // Chercher un nombre suivi de cl, ml, ou l
-                const matchCL = q.match(/([\d.,]+)\s*cl/);
-                const matchML = q.match(/([\d.,]+)\s*ml/);
-                const matchL = q.match(/([\d.,]+)\s*l(?!i)/); // l mais pas "litre" pour eviter faux positif
-
-                if (matchCL) {
-                    volume = parseFloat(matchCL[1].replace(',', '.'));
-                } else if (matchML) {
-                    volume = parseFloat(matchML[1].replace(',', '.')) / 10; // ml -> cl
-                } else if (matchL) {
-                    volume = parseFloat(matchL[1].replace(',', '.')) * 100; // L -> cl
-                }
-            }
-            if (volume) document.getElementById('volume').value = volume;
-
-            // --- DEGRE D'ALCOOL ---
-            let degre = '';
-            if (produit.nutriments && produit.nutriments.alcohol_100g) {
-                degre = produit.nutriments.alcohol_100g;
-            } else if (produit.alcohol_value) {
-                degre = produit.alcohol_value;
-            }
-            if (degre) document.getElementById('degre').value = degre;
-
-            // --- TYPE D'ALCOOL ---
-            // On essaie de deviner le type a partir des categories
-            let typeAlcool = '';
-            const cats = (produit.categories || '').toLowerCase();
-            const nom = (produit.product_name || '').toLowerCase();
-            const combined = cats + ' ' + nom;
-
-            if (combined.includes('vodka')) typeAlcool = 'Vodka';
-            else if (combined.includes('rhum blanc') || combined.includes('white rum')) typeAlcool = 'Rhum blanc';
-            else if (combined.includes('rhum ambr') || combined.includes('amber rum') || combined.includes('dark rum')) typeAlcool = 'Rhum ambré';
-            else if (combined.includes('rhum') || combined.includes('rum')) typeAlcool = 'Rhum blanc';
-            else if (combined.includes('whisky') || combined.includes('whiskey') || combined.includes('scotch') || combined.includes('bourbon')) typeAlcool = 'Whisky';
-            else if (combined.includes('gin')) typeAlcool = 'Gin';
-            else if (combined.includes('tequila') || combined.includes('mezcal')) typeAlcool = 'Tequila';
-            else if (combined.includes('pastis') || combined.includes('anis') || combined.includes('ricard')) typeAlcool = 'Pastis';
-            else if (combined.includes('bière') || combined.includes('beer') || combined.includes('biere')) {
-                if (combined.includes('ambrée') || combined.includes('amber')) typeAlcool = 'Bière ambrée';
-                else if (combined.includes('triple')) typeAlcool = 'Bières triple';
-                else typeAlcool = 'Bière blonde';
-            }
-            else if (combined.includes('vin rouge') || combined.includes('red wine')) typeAlcool = 'Vin rouge';
-            else if (combined.includes('vin blanc') || combined.includes('white wine')) typeAlcool = 'Vin blanc';
-            else if (combined.includes('chartreuse')) typeAlcool = 'Chartreuse';
-            else if (combined.includes('vermouth')) typeAlcool = 'Vermouth sec';
-
-            if (typeAlcool) {
-                document.getElementById('type_alcool').value = typeAlcool;
-                document.getElementById('type_alcool_value').value = typeMap[typeAlcool] || typeAlcool;
-            }
-
-            // --- MESSAGE DE RESULTAT ---
-            let msg = '✅ Produit trouvé : ' + ref;
-            let champs = [];
-            if (volume) champs.push('volume : ' + volume + ' cL');
-            if (degre) champs.push('degré : ' + degre + '°');
-            if (typeAlcool) champs.push('type : ' + typeAlcool);
-            if (champs.length > 0) msg += '\n(' + champs.join(', ') + ')';
-            msg += '\n\nVérifiez les champs et complétez le prix avant d\'enregistrer.';
-
-            resultDiv.textContent = msg;
-            resultDiv.className = 'scanner-result active';
-            resultDiv.style.whiteSpace = 'pre-line';
-        }
 
         // ============================================================
         //  VERIFICATION DE LA CONNEXION
@@ -1223,9 +775,7 @@
                 volume_alcool,
                 masse_alcool,
                 rqc,
-                prix_litre,
-                latitude: parseFloat(document.getElementById("latitude").value) || null,
-                longitude: parseFloat(document.getElementById("longitude").value) || null
+                prix_litre
             };
 
             // Verification doublon
@@ -1309,20 +859,7 @@
                 refDiv.dataset.ref = ref;
                 refDiv.dataset.type = typeMap[groupedData[ref][0].type_alcool] ?? groupedData[ref][0].type_alcool.toLowerCase();
 
-                // Stocker les coordonnees GPS du premier enregistrement du groupe
-                const firstEntry = groupedData[ref][0];
-                if (firstEntry.latitude) refDiv.dataset.lat = firstEntry.latitude;
-                if (firstEntry.longitude) refDiv.dataset.lng = firstEntry.longitude;
-
-                // Calculer la distance si on a la position de l'utilisateur et de l'entree
-                let distanceBadge = '';
-                if (userLat && userLng && firstEntry.latitude && firstEntry.longitude) {
-                    const dist = calculerDistance(userLat, userLng, firstEntry.latitude, firstEntry.longitude);
-                    distanceBadge = '<span class="distance-badge">' + dist.toFixed(1) + ' km</span>';
-                    refDiv.dataset.distance = dist.toFixed(1);
-                }
-
-                refDiv.innerHTML = '<a href="#" class="reference-link">' + ref + distanceBadge + '</a><div class="details" style="display:none;"></div>';
+                refDiv.innerHTML = '<a href="#" class="reference-link">' + ref + '</a><div class="details" style="display:none;"></div>';
                 affichageDiv.appendChild(refDiv);
 
                 const detailsDiv = refDiv.querySelector(".details");
@@ -1449,12 +986,8 @@
         // ============================================================
         function filtrer() {
             const searchTerm = document.querySelector('input[type="search"]').value.toLowerCase();
-            const checkboxes = document.querySelectorAll('.filtre_type_alcool input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
             const selectedTypes = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-
-            // Filtre de proximite
-            const proxActive = document.getElementById('filtreProximite').checked;
-            const distMax = parseFloat(document.getElementById('distanceMax').value);
 
             document.querySelectorAll(".reference-item").forEach(function(refDiv) {
                 const ref = refDiv.dataset.ref.toLowerCase();
@@ -1463,21 +996,7 @@
                 const matchSearch = ref.includes(searchTerm);
                 const matchType = selectedTypes.length === 0 || selectedTypes.includes(type);
 
-                // Verification de la proximite
-                let matchProximite = true;
-                if (proxActive && userLat && userLng) {
-                    const lat = parseFloat(refDiv.dataset.lat);
-                    const lng = parseFloat(refDiv.dataset.lng);
-                    if (lat && lng) {
-                        const dist = calculerDistance(userLat, userLng, lat, lng);
-                        matchProximite = dist <= distMax;
-                    } else {
-                        // Pas de coordonnees GPS pour cette entree
-                        matchProximite = false;
-                    }
-                }
-
-                refDiv.style.display = matchSearch && matchType && matchProximite ? "block" : "none";
+                refDiv.style.display = matchSearch && matchType ? "block" : "none";
             });
         }
 
