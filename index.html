@@ -21,7 +21,7 @@
         }
 
         .navbar {
-            background-color: #f5aade;
+            background-color: #333;
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
@@ -118,7 +118,7 @@
                 top: 55px;
                 left: 0;
                 width: 100%;
-                background-color: #f5aade;
+                background-color: #333;
                 flex-direction: column;
                 display: none;
                 padding: 0;
@@ -172,7 +172,7 @@
         }
 
         footer {
-            background-color: #f5aade;
+            background-color: #333;
             color: white;
             padding: 20px 40px;
             position: fixed;
@@ -728,7 +728,7 @@
 
             <div class="proximity-filter">
                 <label>
-                    <input type="checkbox" id="filtreProximite" onchange="filtrer()">
+                    <input type="checkbox" id="filtreProximite" onchange="demanderPositionFiltre()">
                     📍 Afficher uniquement les résultats près de moi
                 </label>
                 <div class="slider-row" id="sliderProximite" style="display:none;">
@@ -809,6 +809,79 @@
         let userLat = null;
         let userLng = null;
 
+        // Cache de geocodage : stocke les coordonnees des villes deja cherchees
+        // Evite de rappeler Nominatim pour la meme ville
+        // Format : { "Nancy": { lat: 48.6921, lng: 6.1844 }, ... }
+        const cacheGeoVilles = {};
+
+        // Geocoder une ville par son nom via Nominatim
+        // Retourne { lat, lng } ou null si pas trouvee
+        async function geocoderVille(nomVille) {
+            if (!nomVille) return null;
+
+            // Verifier le cache d'abord
+            if (cacheGeoVilles[nomVille] !== undefined) {
+                return cacheGeoVilles[nomVille];
+            }
+
+            try {
+                const resp = await fetch(
+                    'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(nomVille + ', France') + '&limit=1',
+                    { headers: { 'Accept-Language': 'fr' } }
+                );
+                const results = await resp.json();
+
+                if (results.length > 0) {
+                    const coords = {
+                        lat: parseFloat(results[0].lat),
+                        lng: parseFloat(results[0].lon)
+                    };
+                    cacheGeoVilles[nomVille] = coords;
+                    return coords;
+                } else {
+                    cacheGeoVilles[nomVille] = null;
+                    return null;
+                }
+            } catch (err) {
+                console.error('Erreur geocodage ville "' + nomVille + '" :', err);
+                cacheGeoVilles[nomVille] = null;
+                return null;
+            }
+        }
+
+        // Geocoder toutes les villes des entrees sans coordonnees
+        // Appelée quand le filtre de proximite est active
+        async function geocoderEntreesSansCoordonnees() {
+            const items = document.querySelectorAll('.reference-item');
+            const villesSansCoords = new Set();
+
+            // Collecter les villes qui n'ont pas de coordonnees
+            items.forEach(function(item) {
+                if (!item.dataset.lat && item.dataset.ville) {
+                    villesSansCoords.add(item.dataset.ville);
+                }
+            });
+
+            // Geocoder chaque ville unique (avec un delai pour respecter Nominatim)
+            for (const ville of villesSansCoords) {
+                if (cacheGeoVilles[ville] !== undefined) continue;
+                await geocoderVille(ville);
+                // Pause 1 seconde entre chaque requete (limite Nominatim)
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
+            // Appliquer les coordonnees trouvees aux elements
+            items.forEach(function(item) {
+                if (!item.dataset.lat && item.dataset.ville) {
+                    const coords = cacheGeoVilles[item.dataset.ville];
+                    if (coords) {
+                        item.dataset.lat = coords.lat;
+                        item.dataset.lng = coords.lng;
+                    }
+                }
+            });
+        }
+
         // Formule de Haversine : calcule la distance en km entre 2 points GPS
         function calculerDistance(lat1, lng1, lat2, lng2) {
             const R = 6371; // rayon de la Terre en km
@@ -881,7 +954,7 @@
         }
 
         // Demander la position pour le filtre de proximite
-        function demanderPositionFiltre() {
+        async function demanderPositionFiltre() {
             const statusEl = document.getElementById('geolocStatus');
             const sliderEl = document.getElementById('sliderProximite');
             const checkbox = document.getElementById('filtreProximite');
@@ -895,7 +968,11 @@
 
             if (userLat && userLng) {
                 sliderEl.style.display = 'flex';
-                statusEl.textContent = '📍 Position acquise';
+                statusEl.textContent = '📍 Géocodage des villes en cours...';
+
+                // Geocoder les entrees sans coordonnees GPS
+                await geocoderEntreesSansCoordonnees();
+                statusEl.textContent = '📍 Position acquise — filtre actif';
                 filtrer();
                 return;
             }
@@ -909,11 +986,15 @@
             }
 
             navigator.geolocation.getCurrentPosition(
-                function(position) {
+                async function(position) {
                     userLat = position.coords.latitude;
                     userLng = position.coords.longitude;
                     sliderEl.style.display = 'flex';
-                    statusEl.textContent = '📍 Position acquise';
+                    statusEl.textContent = '📍 Géocodage des villes en cours...';
+
+                    // Geocoder les entrees sans coordonnees GPS
+                    await geocoderEntreesSansCoordonnees();
+                    statusEl.textContent = '📍 Position acquise — filtre actif';
                     filtrer();
                 },
                 function(error) {
@@ -930,10 +1011,7 @@
         }
 
         // Ecouter le changement de la checkbox de proximite
-        document.addEventListener('DOMContentLoaded', function() {
-            const cb = document.getElementById('filtreProximite');
-            if (cb) cb.addEventListener('change', demanderPositionFiltre);
-        });
+        // (geré par onchange="demanderPositionFiltre()" dans le HTML)
 
         // ============================================================
         //  SCANNER DE CODE-BARRES + OPEN FOOD FACTS
@@ -1313,11 +1391,20 @@
                 const firstEntry = groupedData[ref][0];
                 if (firstEntry.latitude) refDiv.dataset.lat = firstEntry.latitude;
                 if (firstEntry.longitude) refDiv.dataset.lng = firstEntry.longitude;
+                if (firstEntry.ville) refDiv.dataset.ville = firstEntry.ville;
+
+                // Si pas de coordonnees GPS mais une ville connue dans le cache
+                if (!firstEntry.latitude && firstEntry.ville && cacheGeoVilles[firstEntry.ville]) {
+                    refDiv.dataset.lat = cacheGeoVilles[firstEntry.ville].lat;
+                    refDiv.dataset.lng = cacheGeoVilles[firstEntry.ville].lng;
+                }
 
                 // Calculer la distance si on a la position de l'utilisateur et de l'entree
                 let distanceBadge = '';
-                if (userLat && userLng && firstEntry.latitude && firstEntry.longitude) {
-                    const dist = calculerDistance(userLat, userLng, firstEntry.latitude, firstEntry.longitude);
+                const entryLat = parseFloat(refDiv.dataset.lat);
+                const entryLng = parseFloat(refDiv.dataset.lng);
+                if (userLat && userLng && entryLat && entryLng) {
+                    const dist = calculerDistance(userLat, userLng, entryLat, entryLng);
                     distanceBadge = '<span class="distance-badge">' + dist.toFixed(1) + ' km</span>';
                     refDiv.dataset.distance = dist.toFixed(1);
                 }
