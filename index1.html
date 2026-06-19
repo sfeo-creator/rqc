@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rQC</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0;
+            margin: 0;
+            padding-bottom: 80px;
+        }
+
+        .page{
+            margin-bottom: 30px;
+        }
+
+        .navbar {
+            background-color: #f5aade;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            z-index: 20;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        .hamburger.open span:nth-child(1) { 
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.open span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .navbar img {
+            max-width: 100px;
+            height: auto;
+            position: absolute;
+            top: 30px;
+            left: 80px;
+        }
+
+        .navbar a.logo_accueil {
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .navbar div {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .navbar a.accueil_button, .navbar a.affichage_button, .navbar a.enregistrement_button {
+            color: white;
+            text-decoration: none;
+            padding: 13px 65px;
+            display: block;
+            cursor: pointer;
+        }
+
+        .navbar a.accueil_button:hover, .navbar a.affichage_button:hover, .navbar a.enregistrement_button:hover {
+            background: #ddd;
+            color: black;
+        }
+
+        .accueil_button {
+            background: linear-gradient(109deg, rgba(0,34,255,1) 0%, rgba(255,0,208,1) 76%);
+            transition: background-color 0.3s ease;
+        }
+
+        .affichage_button {
+            background-color: #2196F3;
+            transition: background-color 0.3s ease;
+        }
+
+        .enregistrement_button {
+            background-color: #f44336;
+            transition: background-color 0.3s ease;
+        }
+
+        @media (max-width: 1200px) {
+            .hamburger { display: flex; }
+
+            .nav-links {
+                position: fixed;
+                top: 55px;
+                left: 0;
+                width: 100%;
+                background-color: #f5aade;
+                flex-direction: column;
+                display: none;
+                padding: 0;
+                z-index: 10;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links div {
+                width: 60%; margin: 0;
+            }
+
+            .nav-links a {
+                padding: 15px;
+            }
+
+            .navbar img {
+                max-width: 100px; height: auto; position: initial; border: none;
+            }
+
+            div#page-accueil div {
+                text-align: center;
+                margin-top: 40px;
+            }
+
+            form.affichage {
+                margin: 20px 10px 0px 10px;
+                max-height: none;
+                overflow-y: visible;
+                width: auto;
+                box-sizing: border-box;
+            }
+
+            .reference-item {
+                margin: 0px 10px 10px 10px;
+            }
+
+            table {
+                font-size: 0.75em;
+            }
+
+            th, td {
+                padding: 4px 5px;
+            }
+
+            a.reference-link {
+                font-size: 1.1em;
+            }
+        }
+
+        footer {
+            background-color: #f5aade;
+            color: white;
+            padding: 20px 40px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-sizing: border-box;
+        }
+
+        footer div {
+            margin-bottom: 0;
+        }
+
+        footer a {
+            color: white; text-decoration: none;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        div#page-accueil {
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+            padding: 0 20px;
+        }
+        div#page-accueil div {
+            text-align: center;
+            margin-top: 75px;
+        }
+
+        div.form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+            padding: 0 20px;
+        }
+
+        form.enregistrement_form {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        input[type="submit"].submit_enregistrement {
+            width: 100%;
+        }
+
+        input[type="number"]#prix {
+            width: 100%;
+        }
+
+        input[type="text"], input[type="number"] {
+            border-right: unset;
+            border-left: unset;
+            border-top: unset;
+            border-bottom: 2px solid grey;
+            background-color: #ffffff;
+            padding: 10px;
+            margin-bottom: 15px;
+            min-height: 3vh;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        input[type="submit"] {
+            border-right: unset;
+            border-left: unset;
+            border-top: unset;
+            border-bottom: 2px solid grey;
+            background-color: #ffffff;
+            padding: 15px;
+            margin-bottom: 15px;
+            min-height: 3vh;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        input[type="text"]:hover, input[type="number"]:hover, input[type="submit"]:hover {
+            border-color: #ff351a;
+            transition: 0.3s ease;
+        }
+
+        button {
+            border-right: unset;
+            border-left: unset;
+            border-top: unset;
+            border-bottom: 2px solid grey;
+            background-color: #ffffff;
+            padding: 10px;
+            margin-bottom: 15px;
+            min-height: 3vh;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        button:hover {
+            border-color: #ff351a; transition: 0.3s ease;
+        }
+
+        form.affichage {
+            margin: 40px auto 0px auto;
+            max-width: 570px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        form.affichage input[type="search"] {
+            width: 100%;
+            border-right: unset;
+            border-left: unset;
+            border-top: unset;
+            border-bottom: 2px solid grey;
+            background-color: #ffffff;
+            padding: 10px;
+            margin-bottom: 15px;
+            min-height: 3vh;
+            font-size: 1em;
+        }
+
+        form.affichage div.filtre_type_alcool p {
+            margin: 0 0 10px 0;
+            font-weight: bold;
+            grid-column: span 4;
+        }
+
+        .filtre_type_alcool{
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 0px 15px;
+        }
+
+        .reference-item{
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 0px auto 10px auto;
+            border-radius: 6px;
+            max-width: 570px;
+            box-sizing: border-box;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            font-size: 0.9em;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .edit-button {
+            background-color: #2196F3;
+            font-size: 0.9em;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 6px;
+            border-radius: 6px;
+        }
+
+        .edit-button:hover {
+            background-color: #1976D2;
+        }
+
+        .entry-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        a.reference-link {
+            color: #2196F3;
+            text-decoration: none;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .details {
+            overflow-x: auto;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .status-badge.connected {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status-badge.disconnected {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .status-badge.loading {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        .loading-msg {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .geoloc-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .geoloc-button:hover {
+            background-color: #43A047;
+        }
+
+        .geoloc-button:disabled {
+            background-color: #ccc;
+            cursor: wait;
+        }
+
+        .proximity-filter {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin: 10px 0;
+        }
+
+        .proximity-filter label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .proximity-filter .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .proximity-filter input[type="range"] {
+            flex: 1;
+        }
+
+        .proximity-filter .distance-val {
+            min-width: 55px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .distance-badge {
+            font-size: 0.8em;
+            color: #4CAF50;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .scan-button {
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .scan-button:hover {
+            background-color: #F57C00;
+        }
+
+        .scanner-container {
+            display: none;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .scanner-container.active {
+            display: block;
+        }
+
+        #scanner-view {
+            width: 100%;
+            min-height: 250px;
+        }
+
+        .scanner-stop {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .scanner-result {
+            background-color: #e8f5e9;
+            border: 1px solid #4CAF50;
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .scanner-result.error {
+            background-color: #ffebee;
+            border-color: #f44336;
+        }
+
+        .scanner-result.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <nav class="nav-links" id="navLinks">
+            <div class="img"><a onclick="naviguer('accueil')" class="logo_accueil"><img src="images/Sans titre - 1.png" alt=""></a></div>
+            <div class="div_acc"><a onclick="naviguer('accueil')" class="accueil_button">Accueil</a></div>
+            <div class="div_aff"><a onclick="naviguer('affichage')" class="affichage_button">Affichage des données</a></div>
+            <div class="div_enr"><a onclick="naviguer('enregistrement')" class="enregistrement_button">Enregistrement des données</a></div>
+        </nav>
+    </header>
+
+    <div id="page-accueil" class="page active">
+        <div class="explication">
+            <h1 class="titre_accueil">Bienvenue sur la page d'accueil du rQC</h1>
+            <span id="statusBadge" class="status-badge loading">Connexion en cours...</span>
+            <p class="paragraphe_presentation">
+                Le rQC c'est le prix de l'alcool pur d'une bouteille rapporté à un litre.<br>
+                Il permet de savoir à quel prix est la race que je me mets.<br><br>
+                Les données sont maintenant stockées <strong>en ligne</strong> : tout le monde partage la même base de données en temps réel.<br>
+                Plus besoin d'importer ou d'exporter des fichiers JSON !<br><br>
+                Utilisez le menu <strong>"Affichage des données"</strong> pour consulter et rechercher les données,<br>
+                et le menu <strong>"Enregistrement des données"</strong> pour en ajouter de nouvelles.<br>
+                Chaque ajout est immédiatement visible par tous les utilisateurs.
+            </p>
+        </div>
+        <div class="buttons">
+            <p>Sauvegarder une copie locale (optionnel) :</p>
+            <button onclick="exporterBD()">Exporter les données (backup)</button>
+        </div>
+    </div>
+
+    <div id="page-enregistrement" class="page">
+        <div class="form">
+            <form class="enregistrement_form" id="enregistrement_form">
+                <button type="button" class="scan-button" id="btnScan" onclick="lancerScanner()">📷 Scanner un code-barres</button>
+                <div class="scanner-container" id="scannerContainer">
+                    <div id="scanner-view"></div>
+                    <button type="button" class="scanner-stop" onclick="arreterScanner()">Arrêter le scanner</button>
+                </div>
+                <div class="scanner-result" id="scanResult"></div>
+
+                <input type="number" id="prix" name="prix" step="0.01" required placeholder="Prix de la bouteille (en €)"><br>
+                <input type="number" id="volume" name="volume" step="0.01" required placeholder="Volume de la bouteille (en cL)">
+                <input type="number" id="degre" name="degre" step="0.01" required placeholder="Degré de l'alcool (en °)"><br>
+                <input type="text" id="magasin" name="magasin" required placeholder="Magasin d'achat">
+                <input type="text" id="ville" name="ville" required placeholder="Ville d'achat">
+                <button type="button" class="geoloc-button" id="btnGeoloc" onclick="meLocaliser()">📍 Me localiser (remplir la ville automatiquement)</button>
+                <input type="hidden" id="latitude" name="latitude">
+                <input type="hidden" id="longitude" name="longitude">
+
+                <input list="list_type_alcool" type="text" id="type_alcool" name="type_alcool" required placeholder="Type d'alcool">
+                <datalist id="list_type_alcool">
+                    <option value="Vodka">
+                    <option value="Bière blonde">
+                    <option value="Bière ambrée">
+                    <option value="Whisky">
+                    <option value="Rhum blanc">
+                    <option value="Rhum ambré">
+                    <option value="Rhum coco">
+                    <option value="Vin rouge">
+                    <option value="Vin blanc">
+                    <option value="Anisette">
+                    <option value="Pastis">
+                    <option value="Bières triple">
+                    <option value="Vermouth sec">
+                    <option value="Soho">
+                    <option value="Chartreuse">
+                    <option value="Tequila">
+                    <option value="Get 27">
+                    <option value="Gin">
+                </datalist>
+                <input type="hidden" id="type_alcool_value" name="type_alcool_hidden">
+
+                <input list="list_references" type="text" id="references" name="references" required placeholder="Références de l'alcool">
+                <datalist id="list_references">
+                    <option value="Vodka pure grain triple distilled POLIAKOV 70 cL">
+                    <option value="Vodka pure grain triple distilled POLIAKOV 1L">
+                    <option value="Vodka pure grain triple distilled POLIAKOV 1.5L">
+                    <option value="Vodka pure grain triple distilled POLIAKOV 3L">
+                    <option value="Ricard 1L">
+                    <option value="Pastis 51 1L">
+                    <option value="Rivanis 1L">
+                    <option value="Ricard 70 cL">
+                    <option value="Pastis 51 70 cL">
+                    <option value="Rivanis 50 cL">
+                    <option value="Smirnoff 70 cL">
+                    <option value="Absolut 1L">
+                    <option value="Absolut 70 cL">
+                    <option value="Zubrowka 1L">
+                    <option value="Zubrowka 70 cL">
+                    <option value="Vikoroff 1L">
+                    <option value="Vikoroff 70 cL">
+                    <option value="Grimbergen ambrée 20*25 cL">
+                    <option value="Chouffe blonde fût 5L">
+                    <option value="Grimbergen blonde 20*25 cL">
+                    <option value="Grimbergen blonde 12*25 cL">
+                    <option value="Goudale blonde 20*25 cL">
+                    <option value="Goudale blonde 12*25 cL">
+                    <option value="Goudale ambrée 12*25 cL">
+                    <option value="Goudale blonde fût 5L">
+                    <option value="Affligem blonde 20*25 cL">
+                    <option value="Affligem blonde 12*25 cL">
+                    <option value="Affligem blonde fût 5L">
+                    <option value="La bête blonde 12*25 cL">
+                    <option value="Triple secret des moines blonde fût 5L">
+                    <option value="Leffe blonde 20*25 cL">
+                    <option value="Grimbergen ambrée 12*25 cL">
+                    <option value="Paix-Dieu 75 cL">
+                    <option value="La bête blonde 75 cL">
+                    <option value="Apéritif Noilly Prat, Original Dry 75 cL">
+                    <option value="Martini blanc 1L">
+                    <option value="Martini blanc 1,5L">
+                    <option value="Litchi SOHO 70 cL">
+                    <option value="CHARTREUSE 70 cL">
+                    <option value="Delirium blonde tremens 75 cL">
+                    <option value="Rhum blanc CHARRETTE 70 cL">
+                    <option value="Rhum blanc OLD NICK 70 cL">
+                    <option value="Rhum blanc SAINT JAMES 70 cL">
+                    <option value="Rhum paille SAINT JAMES 70 cL">
+                    <option value="Rhum ambré OLD NICK 70 cL">
+                    <option value="Rhum blanc OLD NICK 1L">
+                    <option value="Rhum ambré SAINT JAMES 70 cL">
+                    <option value="Rhum blanc CHARRETTE 1L">
+                    <option value="Rhum blanc SAINT JAMES 1L">
+                    <option value="Rhum ambré SAINT JAMES 1L">
+                    <option value="Tequila JOSE CUERVO 70 cL">
+                    <option value="Tequila SAN JOSE 70 cL">
+                    <option value="Get 27 70 cL">
+                    <option value="Gibson's gin 70 cL">
+                    <option value="Clairpastis 1,5 L">
+                    <option value="Sobieski 1 L">
+                    <option value="Sir Edward's 70 cL">
+                    <option value="Dillon 100 cL">
+                    <option value="Malibu 70 cL">
+                    <option value="Sobieski 70 cL">
+                    <option value="AOC Bordeaux 75 cL">
+                    <option value="Expert club, Pays d'Oc Sauvignon Croix du Pin 75 cL">
+                    <option value="Vin Rouge Communauté Européenne BEAUVAL 100 cL">
+                    <option value="Bayanis 70 cL">
+                    <option value="Bayanis 100 cL">
+                    <option value="Rhum blanc ST Simon 70 cL">
+                </datalist>
+                <input type="hidden" id="references_value" name="references_hidden"><br>
+
+                <input type="submit" class="submit_enregistrement" value="Enregistrer les données">
+            </form>
+        </div>
+    </div>
+
+    <div id="page-affichage" class="page">
+        <form action="" method="POST" class="affichage" id="affichage_form">
+            <input type="search" name="" placeholder="Que cherchez vous ?" required><br>
+            <div class="filtre_type_alcool">
+                <p>Quel type d'alcool voulez-vous afficher ?</p>
+                <label><input type="checkbox" value="vodka"> Vodka</label>
+                <label><input type="checkbox" value="bière_blonde"> Bière blonde</label>
+                <label><input type="checkbox" value="bière_ambrée"> Bière ambrée</label>
+                <label><input type="checkbox" value="whisky"> Whisky</label>
+                <label><input type="checkbox" value="rhum_blanc"> Rhum blanc</label>
+                <label><input type="checkbox" value="rhum_ambré"> Rhum ambré</label>
+                <label><input type="checkbox" value="rhum_coco"> Rhum coco</label>
+                <label><input type="checkbox" value="vin_rouge"> Vin rouge</label>
+                <label><input type="checkbox" value="vin_blanc"> Vin blanc</label>
+                <label><input type="checkbox" value="pastis"> Pastis</label>
+                <label><input type="checkbox" value="tequila"> Tequila</label>
+                <label><input type="checkbox" value="gin"> Gin</label>
+                <label><input type="checkbox" value="anisette"> Anisette</label>
+                <label><input type="checkbox" value="bieres_triple"> Bières triple</label>
+                <label><input type="checkbox" value="vermouth_sec"> Vermouth sec</label>
+                <label><input type="checkbox" value="soho"> Soho</label>
+                <label><input type="checkbox" value="chartreuse"> Chartreuse</label>
+                <label><input type="checkbox" value="get_27"> Get 27</label>
+            </div>
+
+            <div class="proximity-filter">
+                <label>
+                    <input type="checkbox" id="filtreProximite" onchange="demanderPositionFiltre()">
+                    📍 Afficher uniquement les résultats près de moi
+                </label>
+                <div class="slider-row" id="sliderProximite" style="display:none;">
+                    <span>Rayon :</span>
+                    <input type="range" id="distanceMax" min="1" max="100" value="20" step="1" oninput="updateDistanceLabel(); filtrer();">
+                    <span class="distance-val" id="distanceLabel">20 km</span>
+                </div>
+                <div id="geolocStatus" style="font-size:0.85em;color:#666;margin-top:6px;"></div>
+            </div>
+        </form>
+        <br><br>
+        <div id="affichage_data"></div>
+    </div>
+
+    <footer>
+        <div class="copyright_pole_fun">
+            <p>&copy; 2026 rQC. Tous droits réservés.</p>
+        </div>
+        <div class="social_media_links">
+            <p><a href="https://www.instagram.com/polefun200/">Instagram</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================================
+        //  CONFIGURATION SUPABASE
+        // ============================================================
+        const SUPABASE_URL = 'https://jmrpnapodrzyszcifzwn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptcnBuYXBvZHJ6eXN6Y2lmenduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NDAyOTEsImV4cCI6MjA5NjAxNjI5MX0.CIklX76jhI64kBOQKzmB__lFZvoLH32g_RaDzXSj6l8';
+
+        // "db" = notre client Supabase (on evite "supabase" car ce nom est deja pris par la librairie)
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============================================================
+        //  NAVIGATION
+        // ============================================================
+        let pageCourante = 'accueil';
+
+        function naviguer(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            pageCourante = page;
+            if (page === 'affichage') {
+                afficherDonnees();
+            }
+            hamburger.classList.remove('open');
+            navLinks.classList.remove('active');
+        }
+
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', function () {
+            hamburger.classList.toggle('open');
+            navLinks.classList.toggle('active');
+        });
+
+        // ============================================================
+        //  MAPPING DES TYPES D'ALCOOL
+        // ============================================================
+        const typeMap = {
+            "Vodka": "vodka", "Bière blonde": "biere_blonde", "Bière ambrée": "biere_ambree",
+            "Whisky": "whisky", "Rhum blanc": "rhum_blanc", "Rhum ambré": "rhum_ambre",
+            "Rhum coco": "rhum_coco", "Vin rouge": "vin_rouge", "Vin blanc": "vin_blanc",
+            "Anisette": "anisette", "Pastis": "pastis", "Bières triple": "bieres_triple",
+            "Vermouth sec": "vermouth_sec", "Soho": "soho", "Chartreuse": "chartreuse",
+            "Tequila": "tequila", "Get 27": "get_27", "Gin": "gin"
+        };
+
+        document.getElementById("type_alcool").addEventListener("change", function () {
+            document.getElementById("type_alcool_value").value = typeMap[this.value] ?? this.value;
+        });
+
+        // ============================================================
+        //  GEOLOCALISATION
+        // ============================================================
+        // Position de l'utilisateur (pour le filtre de proximite)
+        let userLat = null;
+        let userLng = null;
+
+        // Cache de geocodage : stocke les coordonnees des villes deja cherchees
+        // Evite de rappeler Nominatim pour la meme ville
+        // Format : { "Nancy": { lat: 48.6921, lng: 6.1844 }, ... }
+        const cacheGeoVilles = {};
+
+        // Geocoder une ville par son nom via Nominatim
+        // Retourne { lat, lng } ou null si pas trouvee
+        async function geocoderVille(nomVille) {
+            if (!nomVille) return null;
+
+            // Verifier le cache d'abord
+            if (cacheGeoVilles[nomVille] !== undefined) {
+                return cacheGeoVilles[nomVille];
+            }
+
+            try {
+                const resp = await fetch(
+                    'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(nomVille + ', France') + '&limit=1',
+                    { headers: { 'Accept-Language': 'fr' } }
+                );
+                const results = await resp.json();
+
+                if (results.length > 0) {
+                    const coords = {
+                        lat: parseFloat(results[0].lat),
+                        lng: parseFloat(results[0].lon)
+                    };
+                    cacheGeoVilles[nomVille] = coords;
+                    return coords;
+                } else {
+                    cacheGeoVilles[nomVille] = null;
+                    return null;
+                }
+            } catch (err) {
+                console.error('Erreur geocodage ville "' + nomVille + '" :', err);
+                cacheGeoVilles[nomVille] = null;
+                return null;
+            }
+        }
+
+        // Geocoder toutes les villes des entrees sans coordonnees
+        // Appelée quand le filtre de proximite est active
+        async function geocoderEntreesSansCoordonnees() {
+            const items = document.querySelectorAll('.reference-item');
+            const villesSansCoords = new Set();
+
+            // Collecter les villes qui n'ont pas de coordonnees
+            items.forEach(function(item) {
+                if (!item.dataset.lat && item.dataset.ville) {
+                    villesSansCoords.add(item.dataset.ville);
+                }
+            });
+
+            // Geocoder chaque ville unique (avec un delai pour respecter Nominatim)
+            for (const ville of villesSansCoords) {
+                if (cacheGeoVilles[ville] !== undefined) continue;
+                await geocoderVille(ville);
+                // Pause 1 seconde entre chaque requete (limite Nominatim)
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
+            // Appliquer les coordonnees trouvees aux elements
+            items.forEach(function(item) {
+                if (!item.dataset.lat && item.dataset.ville) {
+                    const coords = cacheGeoVilles[item.dataset.ville];
+                    if (coords) {
+                        item.dataset.lat = coords.lat;
+                        item.dataset.lng = coords.lng;
+                    }
+                }
+            });
+        }
+
+        // Formule de Haversine : calcule la distance en km entre 2 points GPS
+        function calculerDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // rayon de la Terre en km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2)
+                    + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+                    * Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Bouton "Me localiser" dans le formulaire d'enregistrement
+        async function meLocaliser() {
+            const btn = document.getElementById('btnGeoloc');
+            btn.disabled = true;
+            btn.textContent = '📍 Localisation en cours...';
+
+            if (!navigator.geolocation) {
+                alert("Votre navigateur ne supporte pas la géolocalisation.");
+                btn.disabled = false;
+                btn.textContent = '📍 Me localiser (remplir la ville automatiquement)';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    // On stocke les coordonnees dans les champs caches
+                    document.getElementById('latitude').value = lat;
+                    document.getElementById('longitude').value = lng;
+
+                    // Reverse geocoding via Nominatim (OpenStreetMap, gratuit)
+                    try {
+                        const resp = await fetch(
+                            'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=14&addressdetails=1',
+                            { headers: { 'Accept-Language': 'fr' } }
+                        );
+                        const geo = await resp.json();
+
+                        // On recupere le nom de la ville
+                        const ville = geo.address.city
+                            || geo.address.town
+                            || geo.address.village
+                            || geo.address.municipality
+                            || '';
+
+                        document.getElementById('ville').value = ville;
+                        btn.textContent = '📍 Localisé : ' + ville;
+                    } catch (err) {
+                        btn.textContent = '📍 Position GPS OK (ville non trouvée)';
+                        console.error('Erreur reverse geocoding :', err);
+                    }
+
+                    btn.disabled = false;
+                },
+                function(error) {
+                    btn.disabled = false;
+                    btn.textContent = '📍 Me localiser (remplir la ville automatiquement)';
+                    if (error.code === 1) {
+                        alert("Vous avez refusé la géolocalisation. Activez-la dans les paramètres de votre navigateur.");
+                    } else {
+                        alert("Impossible de vous localiser : " + error.message);
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // Demander la position pour le filtre de proximite
+        async function demanderPositionFiltre() {
+            const statusEl = document.getElementById('geolocStatus');
+            const sliderEl = document.getElementById('sliderProximite');
+            const checkbox = document.getElementById('filtreProximite');
+
+            if (!checkbox.checked) {
+                sliderEl.style.display = 'none';
+                statusEl.textContent = '';
+                filtrer();
+                return;
+            }
+
+            if (userLat && userLng) {
+                sliderEl.style.display = 'flex';
+                statusEl.textContent = '📍 Géocodage des villes en cours...';
+
+                // Geocoder les entrees sans coordonnees GPS
+                await geocoderEntreesSansCoordonnees();
+                statusEl.textContent = '📍 Position acquise — filtre actif';
+                filtrer();
+                return;
+            }
+
+            statusEl.textContent = 'Localisation en cours...';
+
+            if (!navigator.geolocation) {
+                statusEl.textContent = 'Géolocalisation non supportée';
+                checkbox.checked = false;
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    userLat = position.coords.latitude;
+                    userLng = position.coords.longitude;
+                    sliderEl.style.display = 'flex';
+                    statusEl.textContent = '📍 Géocodage des villes en cours...';
+
+                    // Geocoder les entrees sans coordonnees GPS
+                    await geocoderEntreesSansCoordonnees();
+                    statusEl.textContent = '📍 Position acquise — filtre actif';
+                    filtrer();
+                },
+                function(error) {
+                    statusEl.textContent = 'Impossible de vous localiser';
+                    checkbox.checked = false;
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // Mettre a jour le label du slider
+        function updateDistanceLabel() {
+            document.getElementById('distanceLabel').textContent = document.getElementById('distanceMax').value + ' km';
+        }
+
+        // Ecouter le changement de la checkbox de proximite
+        // (geré par onchange="demanderPositionFiltre()" dans le HTML)
+
+        // ============================================================
+        //  SCANNER DE CODE-BARRES + OPEN FOOD FACTS
+        // ============================================================
+        let html5QrCode = null;
+
+        function lancerScanner() {
+            const container = document.getElementById('scannerContainer');
+            const resultDiv = document.getElementById('scanResult');
+            container.classList.add('active');
+            resultDiv.classList.remove('active');
+
+            html5QrCode = new Html5Qrcode("scanner-view");
+
+            html5QrCode.start(
+                { facingMode: "environment" }, // Camera arriere du telephone
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 100 }, // Zone de scan en rectangle (code-barres)
+                    formatsToSupport: [
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8,
+                        Html5QrcodeSupportedFormats.UPC_A,
+                        Html5QrcodeSupportedFormats.UPC_E
+                    ]
+                },
+                function(decodedText) {
+                    // Code-barres detecte !
+                    arreterScanner();
+                    rechercherProduit(decodedText);
+                },
+                function(errorMessage) {
+                    // Scan en cours, pas encore detecte (normal)
+                }
+            ).catch(function(err) {
+                container.classList.remove('active');
+                resultDiv.textContent = "Impossible d'accéder à la caméra : " + err;
+                resultDiv.className = 'scanner-result error active';
+            });
+        }
+
+        function arreterScanner() {
+            const container = document.getElementById('scannerContainer');
+            if (html5QrCode) {
+                html5QrCode.stop().then(function() {
+                    html5QrCode.clear();
+                    container.classList.remove('active');
+                }).catch(function() {
+                    container.classList.remove('active');
+                });
+            } else {
+                container.classList.remove('active');
+            }
+        }
+
+        async function rechercherProduit(barcode) {
+            const resultDiv = document.getElementById('scanResult');
+            resultDiv.textContent = 'Recherche du produit ' + barcode + '...';
+            resultDiv.className = 'scanner-result active';
+
+            try {
+                const resp = await fetch(
+                    'https://world.openfoodfacts.org/api/v2/product/' + barcode + '.json'
+                );
+                const data = await resp.json();
+
+                if (data.status === 0 || !data.product) {
+                    resultDiv.textContent = 'Produit non trouvé dans Open Food Facts (code : ' + barcode + '). Remplissez les champs manuellement.';
+                    resultDiv.className = 'scanner-result error active';
+                    return;
+                }
+
+                const produit = data.product;
+                remplirFormulaire(produit, barcode);
+
+            } catch (err) {
+                resultDiv.textContent = 'Erreur réseau lors de la recherche : ' + err.message;
+                resultDiv.className = 'scanner-result error active';
+                console.error('Erreur Open Food Facts :', err);
+            }
+        }
+
+        function remplirFormulaire(produit, barcode) {
+            const resultDiv = document.getElementById('scanResult');
+
+            // --- REFERENCE ---
+            // On prend le nom du produit + la quantite
+            let ref = produit.product_name || '';
+            if (produit.brands) {
+                // Ajouter la marque si elle n'est pas deja dans le nom
+                if (!ref.toLowerCase().includes(produit.brands.toLowerCase())) {
+                    ref = produit.brands + ' ' + ref;
+                }
+            }
+            if (produit.quantity) {
+                ref = ref + ' ' + produit.quantity;
+            }
+            ref = ref.trim();
+            document.getElementById('references').value = ref;
+
+            // --- VOLUME ---
+            // Open Food Facts stocke la quantite sous forme de texte ("70 cl", "1 L", etc.)
+            let volume = '';
+            if (produit.quantity) {
+                const q = produit.quantity.toLowerCase();
+                // Chercher un nombre suivi de cl, ml, ou l
+                const matchCL = q.match(/([\d.,]+)\s*cl/);
+                const matchML = q.match(/([\d.,]+)\s*ml/);
+                const matchL = q.match(/([\d.,]+)\s*l(?!i)/); // l mais pas "litre" pour eviter faux positif
+
+                if (matchCL) {
+                    volume = parseFloat(matchCL[1].replace(',', '.'));
+                } else if (matchML) {
+                    volume = parseFloat(matchML[1].replace(',', '.')) / 10; // ml -> cl
+                } else if (matchL) {
+                    volume = parseFloat(matchL[1].replace(',', '.')) * 100; // L -> cl
+                }
+            }
+            if (volume) document.getElementById('volume').value = volume;
+
+            // --- DEGRE D'ALCOOL ---
+            let degre = '';
+            if (produit.nutriments && produit.nutriments.alcohol_100g) {
+                degre = produit.nutriments.alcohol_100g;
+            } else if (produit.alcohol_value) {
+                degre = produit.alcohol_value;
+            }
+            if (degre) document.getElementById('degre').value = degre;
+
+            // --- TYPE D'ALCOOL ---
+            // On essaie de deviner le type a partir des categories
+            let typeAlcool = '';
+            const cats = (produit.categories || '').toLowerCase();
+            const nom = (produit.product_name || '').toLowerCase();
+            const combined = cats + ' ' + nom;
+
+            if (combined.includes('vodka')) typeAlcool = 'Vodka';
+            else if (combined.includes('rhum blanc') || combined.includes('white rum')) typeAlcool = 'Rhum blanc';
+            else if (combined.includes('rhum ambr') || combined.includes('amber rum') || combined.includes('dark rum')) typeAlcool = 'Rhum ambré';
+            else if (combined.includes('rhum') || combined.includes('rum')) typeAlcool = 'Rhum blanc';
+            else if (combined.includes('whisky') || combined.includes('whiskey') || combined.includes('scotch') || combined.includes('bourbon')) typeAlcool = 'Whisky';
+            else if (combined.includes('gin')) typeAlcool = 'Gin';
+            else if (combined.includes('tequila') || combined.includes('mezcal')) typeAlcool = 'Tequila';
+            else if (combined.includes('pastis') || combined.includes('anis') || combined.includes('ricard')) typeAlcool = 'Pastis';
+            else if (combined.includes('bière') || combined.includes('beer') || combined.includes('biere')) {
+                if (combined.includes('ambrée') || combined.includes('amber')) typeAlcool = 'Bière ambrée';
+                else if (combined.includes('triple')) typeAlcool = 'Bières triple';
+                else typeAlcool = 'Bière blonde';
+            }
+            else if (combined.includes('vin rouge') || combined.includes('red wine')) typeAlcool = 'Vin rouge';
+            else if (combined.includes('vin blanc') || combined.includes('white wine')) typeAlcool = 'Vin blanc';
+            else if (combined.includes('chartreuse')) typeAlcool = 'Chartreuse';
+            else if (combined.includes('vermouth')) typeAlcool = 'Vermouth sec';
+
+            if (typeAlcool) {
+                document.getElementById('type_alcool').value = typeAlcool;
+                document.getElementById('type_alcool_value').value = typeMap[typeAlcool] || typeAlcool;
+            }
+
+            // --- MESSAGE DE RESULTAT ---
+            let msg = '✅ Produit trouvé : ' + ref;
+            let champs = [];
+            if (volume) champs.push('volume : ' + volume + ' cL');
+            if (degre) champs.push('degré : ' + degre + '°');
+            if (typeAlcool) champs.push('type : ' + typeAlcool);
+            if (champs.length > 0) msg += '\n(' + champs.join(', ') + ')';
+            msg += '\n\nVérifiez les champs et complétez le prix avant d\'enregistrer.';
+
+            resultDiv.textContent = msg;
+            resultDiv.className = 'scanner-result active';
+            resultDiv.style.whiteSpace = 'pre-line';
+        }
+
+        // ============================================================
+        //  VERIFICATION DE LA CONNEXION
+        // ============================================================
+        async function verifierConnexion() {
+            const badge = document.getElementById('statusBadge');
+            try {
+                const { data, error } = await db
+                    .from('data')
+                    .select('id')
+                    .limit(1);
+
+                if (error) throw error;
+
+                badge.textContent = '✅ Base de données en ligne';
+                badge.className = 'status-badge connected';
+            } catch (err) {
+                badge.textContent = '❌ Connexion impossible';
+                badge.className = 'status-badge disconnected';
+                console.error('Erreur de connexion Supabase :', err);
+            }
+        }
+
+        verifierConnexion();
+
+        // ============================================================
+        //  MISE A JOUR AUTOMATIQUE DES DATALISTS
+        // ============================================================
+        //  Au chargement et apres chaque enregistrement, on recupere
+        //  toutes les valeurs uniques de la base et on les ajoute
+        //  aux datalists si elles n'y sont pas deja.
+        //  Comme ca, quand quelqu'un ajoute un nouveau magasin ou
+        //  une nouvelle reference, tout le monde la voit en suggestion.
+        // ============================================================
+        async function mettreAJourDatalists() {
+            const { data, error } = await db
+                .from('data')
+                .select('reference, magasin, ville, type_alcool');
+
+            if (error || !data) return;
+
+            // On extrait les valeurs uniques pour chaque champ
+            const uniqueRefs = [...new Set(data.map(d => d.reference).filter(Boolean))];
+            const uniqueMagasins = [...new Set(data.map(d => d.magasin).filter(Boolean))];
+            const uniqueVilles = [...new Set(data.map(d => d.ville).filter(Boolean))];
+            const uniqueTypes = [...new Set(data.map(d => d.type_alcool).filter(Boolean))];
+
+            // Fonction utilitaire : ajoute les valeurs manquantes a un datalist
+            function completerDatalist(datalistId, valeurs) {
+                const datalist = document.getElementById(datalistId);
+                if (!datalist) return;
+
+                // On recupere les valeurs deja presentes dans le datalist
+                const existantes = new Set(
+                    Array.from(datalist.options).map(opt => opt.value)
+                );
+
+                // On ajoute celles qui manquent
+                valeurs.forEach(val => {
+                    if (!existantes.has(val)) {
+                        const option = document.createElement('option');
+                        option.value = val;
+                        datalist.appendChild(option);
+                    }
+                });
+            }
+
+            completerDatalist('list_references', uniqueRefs);
+            completerDatalist('list_type_alcool', uniqueTypes);
+
+            // Pour magasin et ville, on cree des datalists s'ils n'existent pas encore
+            // (ils n'en avaient pas dans le code original)
+            if (!document.getElementById('list_magasins')) {
+                const dl = document.createElement('datalist');
+                dl.id = 'list_magasins';
+                document.body.appendChild(dl);
+                document.getElementById('magasin').setAttribute('list', 'list_magasins');
+            }
+            completerDatalist('list_magasins', uniqueMagasins);
+
+            if (!document.getElementById('list_villes')) {
+                const dl = document.createElement('datalist');
+                dl.id = 'list_villes';
+                document.body.appendChild(dl);
+                document.getElementById('ville').setAttribute('list', 'list_villes');
+            }
+            completerDatalist('list_villes', uniqueVilles);
+        }
+
+        // Chargement initial des datalists
+        mettreAJourDatalists();
+
+        // ============================================================
+        //  ENREGISTREMENT DES DONNEES
+        // ============================================================
+        document.getElementById("enregistrement_form").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const prix = parseFloat(document.getElementById("prix").value);
+            const volume = parseFloat(document.getElementById("volume").value);
+            const degre = parseFloat(document.getElementById("degre").value);
+            const volume_alcool = parseFloat(((volume * degre) / 100).toFixed(2));
+            const masse_alcool = parseFloat((volume_alcool * 7.89).toFixed(2));
+            const rqc = parseFloat((prix * 100 / volume_alcool).toFixed(2));
+            const prix_litre = parseFloat((prix * 100 / volume).toFixed(2));
+
+            const donnees = {
+                prix,
+                volume,
+                degre,
+                magasin: document.getElementById("magasin").value,
+                type_alcool: document.getElementById("type_alcool").value,
+                reference: document.getElementById("references").value,
+                ville: document.getElementById("ville").value,
+                volume_alcool,
+                masse_alcool,
+                rqc,
+                prix_litre,
+                latitude: parseFloat(document.getElementById("latitude").value) || null,
+                longitude: parseFloat(document.getElementById("longitude").value) || null
+            };
+
+            // Verification doublon
+            const { data: existant, error: errCheck } = await db
+                .from('data')
+                .select('id')
+                .eq('reference', donnees.reference)
+                .eq('magasin', donnees.magasin)
+                .eq('ville', donnees.ville)
+                .eq('prix', donnees.prix)
+                .eq('volume', donnees.volume)
+                .eq('degre', donnees.degre)
+                .limit(1);
+
+            if (errCheck) {
+                alert("Erreur lors de la vérification : " + errCheck.message);
+                console.error('Erreur Supabase check doublon :', errCheck);
+                return;
+            }
+
+            if (existant && existant.length > 0) {
+                alert("⚠️ Cette entrée existe déjà dans la base de données !\n\n"
+                    + "Même référence, même magasin, même ville, même prix, même volume, même degré.\n\n"
+                    + "Pour modifier une entrée existante (ex: changement de prix), "
+                    + "utilisez le bouton \"Modifier\" dans l'affichage des données.");
+                return;
+            }
+
+            // Insertion
+            const { data, error } = await db
+                .from('data')
+                .insert([donnees]);
+
+            if (error) {
+                alert("Erreur lors de l'enregistrement : " + error.message);
+                console.error('Erreur Supabase insert :', error);
+            } else {
+                alert("Données enregistrées avec succès !");
+                document.getElementById("enregistrement_form").reset();
+                mettreAJourDatalists(); // Rafraichir les suggestions
+            }
+        });
+
+        // ============================================================
+        //  AFFICHAGE DES DONNEES
+        // ============================================================
+        async function afficherDonnees() {
+            const affichageDiv = document.getElementById("affichage_data");
+            affichageDiv.innerHTML = '<p class="loading-msg">Chargement des données...</p>';
+
+            const { data, error } = await db
+                .from('data')
+                .select('*')
+                .order('id', { ascending: true });
+
+            if (error) {
+                affichageDiv.innerHTML = '<p class="loading-msg">Erreur lors du chargement des données.</p>';
+                console.error('Erreur Supabase select :', error);
+                return;
+            }
+
+            affichageDiv.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                affichageDiv.innerHTML = '<p class="loading-msg">Aucune donnée enregistrée.</p>';
+                return;
+            }
+
+            // Groupement par reference
+            const groupedData = {};
+            data.forEach(item => {
+                if (!groupedData[item.reference]) {
+                    groupedData[item.reference] = [];
+                }
+                groupedData[item.reference].push(item);
+            });
+
+            for (const ref in groupedData) {
+                const refDiv = document.createElement("div");
+                refDiv.classList.add("reference-item");
+                refDiv.dataset.ref = ref;
+                refDiv.dataset.type = typeMap[groupedData[ref][0].type_alcool] ?? groupedData[ref][0].type_alcool.toLowerCase();
+
+                // Stocker les coordonnees GPS du premier enregistrement du groupe
+                const firstEntry = groupedData[ref][0];
+                if (firstEntry.latitude) refDiv.dataset.lat = firstEntry.latitude;
+                if (firstEntry.longitude) refDiv.dataset.lng = firstEntry.longitude;
+                if (firstEntry.ville) refDiv.dataset.ville = firstEntry.ville;
+
+                // Si pas de coordonnees GPS mais une ville connue dans le cache
+                if (!firstEntry.latitude && firstEntry.ville && cacheGeoVilles[firstEntry.ville]) {
+                    refDiv.dataset.lat = cacheGeoVilles[firstEntry.ville].lat;
+                    refDiv.dataset.lng = cacheGeoVilles[firstEntry.ville].lng;
+                }
+
+                // Calculer la distance si on a la position de l'utilisateur et de l'entree
+                let distanceBadge = '';
+                const entryLat = parseFloat(refDiv.dataset.lat);
+                const entryLng = parseFloat(refDiv.dataset.lng);
+                if (userLat && userLng && entryLat && entryLng) {
+                    const dist = calculerDistance(userLat, userLng, entryLat, entryLng);
+                    distanceBadge = '<span class="distance-badge">' + dist.toFixed(1) + ' km</span>';
+                    refDiv.dataset.distance = dist.toFixed(1);
+                }
+
+                refDiv.innerHTML = '<a href="#" class="reference-link">' + ref + distanceBadge + '</a><div class="details" style="display:none;"></div>';
+                affichageDiv.appendChild(refDiv);
+
+                const detailsDiv = refDiv.querySelector(".details");
+
+                const table = document.createElement("table");
+                table.innerHTML = '<thead><tr><th>Magasin</th><th>Ville</th><th>Prix</th><th>Volume</th><th>Degré</th><th>RQC</th></tr></thead><tbody></tbody>';
+                detailsDiv.appendChild(table);
+                const tbody = table.querySelector("tbody");
+
+                groupedData[ref].forEach(entry => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = '<td>' + entry.magasin + '</td><td>' + entry.ville + '</td><td>' + entry.prix + '€</td><td>' + entry.volume + 'cL</td><td>' + entry.degre + '°</td><td>' + entry.rqc + ' €/L</td>';
+                    tbody.appendChild(tr);
+                });
+
+                groupedData[ref].forEach(entry => {
+                    const btnDiv = document.createElement("div");
+                    btnDiv.classList.add("entry-buttons");
+
+                    const editBtn = document.createElement("button");
+                    editBtn.classList.add("edit-button");
+                    editBtn.textContent = 'Modifier : ' + entry.magasin + ' - ' + entry.ville + ' (' + entry.prix + '€)';
+                    editBtn.addEventListener("click", function () {
+                        modifierEntree(entry);
+                    });
+                    btnDiv.appendChild(editBtn);
+
+                    const delBtn = document.createElement("button");
+                    delBtn.classList.add("delete-button");
+                    delBtn.textContent = 'Supprimer';
+                    delBtn.addEventListener("click", function () {
+                        supprimerRef(entry.id);
+                    });
+                    btnDiv.appendChild(delBtn);
+
+                    detailsDiv.appendChild(btnDiv);
+                });
+
+                refDiv.querySelector(".reference-link").addEventListener("click", function (e) {
+                    e.preventDefault();
+                    detailsDiv.style.display = detailsDiv.style.display === "none" ? "block" : "none";
+                });
+            }
+        }
+
+        afficherDonnees();
+
+        // ============================================================
+        //  SUPPRESSION
+        // ============================================================
+        async function supprimerRef(id) {
+            if (!confirm("Êtes-vous sûr de vouloir supprimer cette entrée ?")) return;
+
+            const { error } = await db
+                .from('data')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert("Erreur lors de la suppression : " + error.message);
+                console.error('Erreur Supabase delete :', error);
+            } else {
+                alert("Donnée supprimée avec succès !");
+                afficherDonnees();
+            }
+        }
+
+        // ============================================================
+        //  MODIFICATION
+        // ============================================================
+        async function modifierEntree(entry) {
+            const nouveauPrix = prompt("Nouveau prix (en €) :", entry.prix);
+            if (nouveauPrix === null) return;
+
+            const nouveauMagasin = prompt("Nouveau magasin :", entry.magasin);
+            if (nouveauMagasin === null) return;
+
+            const nouvelleVille = prompt("Nouvelle ville :", entry.ville);
+            if (nouvelleVille === null) return;
+
+            const nouveauVolume = prompt("Nouveau volume (en cL) :", entry.volume);
+            if (nouveauVolume === null) return;
+
+            const nouveauDegre = prompt("Nouveau degré (en °) :", entry.degre);
+            if (nouveauDegre === null) return;
+
+            const prix = parseFloat(nouveauPrix) || entry.prix;
+            const magasin = nouveauMagasin.trim() || entry.magasin;
+            const ville = nouvelleVille.trim() || entry.ville;
+            const volume = parseFloat(nouveauVolume) || entry.volume;
+            const degre = parseFloat(nouveauDegre) || entry.degre;
+
+            const volume_alcool = parseFloat(((volume * degre) / 100).toFixed(2));
+            const masse_alcool = parseFloat((volume_alcool * 7.89).toFixed(2));
+            const rqc = parseFloat((prix * 100 / volume_alcool).toFixed(2));
+            const prix_litre = parseFloat((prix * 100 / volume).toFixed(2));
+
+            const { error } = await db
+                .from('data')
+                .update({
+                    prix,
+                    magasin,
+                    ville,
+                    volume,
+                    degre,
+                    volume_alcool,
+                    masse_alcool,
+                    rqc,
+                    prix_litre
+                })
+                .eq('id', entry.id);
+
+            if (error) {
+                alert("Erreur lors de la modification : " + error.message);
+                console.error('Erreur Supabase update :', error);
+            } else {
+                alert("Donnée modifiée avec succès !");
+                afficherDonnees();
+            }
+        }
+
+        // ============================================================
+        //  FILTRAGE
+        // ============================================================
+        function filtrer() {
+            const searchTerm = document.querySelector('input[type="search"]').value.toLowerCase();
+            const checkboxes = document.querySelectorAll('.filtre_type_alcool input[type="checkbox"]');
+            const selectedTypes = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+            // Filtre de proximite
+            const proxActive = document.getElementById('filtreProximite').checked;
+            const distMax = parseFloat(document.getElementById('distanceMax').value);
+
+            document.querySelectorAll(".reference-item").forEach(function(refDiv) {
+                const ref = refDiv.dataset.ref.toLowerCase();
+                const type = refDiv.dataset.type.toLowerCase();
+
+                const matchSearch = ref.includes(searchTerm);
+                const matchType = selectedTypes.length === 0 || selectedTypes.includes(type);
+
+                // Verification de la proximite
+                let matchProximite = true;
+                if (proxActive && userLat && userLng) {
+                    const lat = parseFloat(refDiv.dataset.lat);
+                    const lng = parseFloat(refDiv.dataset.lng);
+                    if (lat && lng) {
+                        const dist = calculerDistance(userLat, userLng, lat, lng);
+                        matchProximite = dist <= distMax;
+                    } else {
+                        // Pas de coordonnees GPS pour cette entree
+                        matchProximite = false;
+                    }
+                }
+
+                refDiv.style.display = matchSearch && matchType && matchProximite ? "block" : "none";
+            });
+        }
+
+        document.getElementById("affichage_form").addEventListener("change", filtrer);
+        document.querySelector('input[type="search"]').addEventListener("input", filtrer);
+
+        // ============================================================
+        //  EXPORT BACKUP
+        // ============================================================
+        async function exporterBD() {
+            const { data, error } = await db
+                .from('data')
+                .select('*');
+
+            if (error) {
+                alert("Erreur lors de l'export : " + error.message);
+                return;
+            }
+
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "bd_rqc_backup.json";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
