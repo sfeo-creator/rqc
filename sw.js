@@ -1,5 +1,5 @@
 const CACHE_NAME = 'rqc-cache-v1';
-const FICHIERS = ['./rqc.html','./manifest.json','./pwa_icons/icon-192.png','./pwa_icons/icon-512.png'];
+const FICHIERS = ['./index.html','./manifest.json','./pwa_icons/icon-192.png','./pwa_icons/icon-512.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(FICHIERS))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ns => Promise.all(ns.map(n => n!==CACHE_NAME ? caches.delete(n) : null)))); self.clients.claim(); });
