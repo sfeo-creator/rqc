@@ -2,7 +2,7 @@
   "name": "rQC - Rapport Qualité/Coût Alcool",
   "short_name": "rQC",
   "description": "Comparez le prix de l'alcool pur au litre",
-  "start_url": "./rqc.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#333333",
