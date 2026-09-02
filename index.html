@@ -55,6 +55,21 @@
         form.affichage input[type="search"]{width:100%;border:none;border-bottom:2px solid grey;background:#fff;padding:10px;margin-bottom:15px;min-height:3vh;font-size:1em}
         form.affichage div.filtre_type_alcool p{margin:0 0 10px;font-weight:bold;grid-column:span 4}
         .filtre_type_alcool{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:0 15px}
+
+        /* Filtre type d'alcool - version chips repliable */
+        .type-filter-wrap{background:#f9f9f9;border:1px solid #ddd;border-radius:6px;margin:10px 0;overflow:hidden}
+        .type-filter-header{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;cursor:pointer;user-select:none}
+        .type-filter-header strong{font-size:.95em}
+        .type-filter-header .count-badge{background:#2196F3;color:#fff;font-size:.75em;padding:2px 8px;border-radius:10px;margin-left:8px;display:none}
+        .type-filter-header .count-badge.active{display:inline-block}
+        .type-filter-chevron{transition:transform .25s;font-size:.8em;color:#666}
+        .type-filter-chevron.open{transform:rotate(180deg)}
+        .type-chips{display:none;flex-wrap:wrap;gap:8px;padding:0 15px 15px}
+        .type-chips.open{display:flex}
+        .type-chip{background:#fff;border:1px solid #ccc;border-radius:20px;padding:7px 14px;font-size:.85em;cursor:pointer;transition:.2s;user-select:none;white-space:nowrap}
+        .type-chip:hover{border-color:#ff351a}
+        .type-chip.selected{background:#2196F3;border-color:#2196F3;color:#fff;font-weight:bold}
+        .type-chip-clear{background:none;border:1px dashed #999;color:#666}
         .reference-item{border:1px solid #ddd;padding:10px;margin:0 auto 10px;border-radius:6px;max-width:570px;box-sizing:border-box}
         a.reference-link{color:#2196F3;text-decoration:none;font-size:1.5em;font-weight:bold}
         table{border-collapse:collapse;width:100%;margin:10px 0}th,td{border:1px solid #ddd;padding:8px 12px;text-align:center}
@@ -157,11 +172,35 @@
     </div>
 
     <div id="page-affichage" class="page">
-        <form class="affichage" id="affichage_form">
+        <form class="affichage" id="affichage_form" onsubmit="return false">
             <input type="search" placeholder="Que cherchez vous ?"><br>
-            <div class="filtre_type_alcool">
-                <p>Quel type d'alcool ?</p>
-                <label><input type="checkbox" value="vodka"> Vodka</label><label><input type="checkbox" value="bière_blonde"> Bière blonde</label><label><input type="checkbox" value="bière_ambrée"> Bière ambrée</label><label><input type="checkbox" value="whisky"> Whisky</label><label><input type="checkbox" value="rhum_blanc"> Rhum blanc</label><label><input type="checkbox" value="rhum_ambré"> Rhum ambré</label><label><input type="checkbox" value="rhum_coco"> Rhum coco</label><label><input type="checkbox" value="vin_rouge"> Vin rouge</label><label><input type="checkbox" value="vin_blanc"> Vin blanc</label><label><input type="checkbox" value="pastis"> Pastis</label><label><input type="checkbox" value="tequila"> Tequila</label><label><input type="checkbox" value="gin"> Gin</label><label><input type="checkbox" value="anisette"> Anisette</label><label><input type="checkbox" value="bieres_triple"> Bières triple</label><label><input type="checkbox" value="vermouth_sec"> Vermouth sec</label><label><input type="checkbox" value="soho"> Soho</label><label><input type="checkbox" value="chartreuse"> Chartreuse</label><label><input type="checkbox" value="get_27"> Get 27</label>
+
+            <div class="type-filter-wrap">
+                <div class="type-filter-header" onclick="toggleTypeFilter()">
+                    <span><strong>🍹 Type d'alcool</strong><span class="count-badge" id="typeCountBadge"></span></span>
+                    <span class="type-filter-chevron" id="typeFilterChevron">▼</span>
+                </div>
+                <div class="type-chips" id="typeChips">
+                    <span class="type-chip type-chip-clear" onclick="viderTypes()">✕ Tout effacer</span>
+                    <span class="type-chip" data-val="vodka">Vodka</span>
+                    <span class="type-chip" data-val="biere_blonde">Bière blonde</span>
+                    <span class="type-chip" data-val="biere_ambree">Bière ambrée</span>
+                    <span class="type-chip" data-val="whisky">Whisky</span>
+                    <span class="type-chip" data-val="rhum_blanc">Rhum blanc</span>
+                    <span class="type-chip" data-val="rhum_ambre">Rhum ambré</span>
+                    <span class="type-chip" data-val="rhum_coco">Rhum coco</span>
+                    <span class="type-chip" data-val="vin_rouge">Vin rouge</span>
+                    <span class="type-chip" data-val="vin_blanc">Vin blanc</span>
+                    <span class="type-chip" data-val="pastis">Pastis</span>
+                    <span class="type-chip" data-val="tequila">Tequila</span>
+                    <span class="type-chip" data-val="gin">Gin</span>
+                    <span class="type-chip" data-val="anisette">Anisette</span>
+                    <span class="type-chip" data-val="bieres_triple">Bières triple</span>
+                    <span class="type-chip" data-val="vermouth_sec">Vermouth sec</span>
+                    <span class="type-chip" data-val="soho">Soho</span>
+                    <span class="type-chip" data-val="chartreuse">Chartreuse</span>
+                    <span class="type-chip" data-val="get_27">Get 27</span>
+                </div>
             </div>
 
             <!-- Filtres avancés -->
@@ -177,6 +216,7 @@
                 </div>
                 <div class="tri-buttons">
                     <span style="font-size:.85em;align-self:center;margin-right:4px">Trier par :</span>
+                    <button type="button" class="tri-btn" id="tri-ref" onclick="changerTri('ref')">Référence</button>
                     <button type="button" class="tri-btn active" id="tri-rqc" onclick="changerTri('rqc')">💰 Meilleur RQC</button>
                     <button type="button" class="tri-btn" id="tri-prix" onclick="changerTri('prix')">Prix ↑</button>
                 </div>
@@ -326,7 +366,7 @@
     });
 
     // ===================== AFFICHAGE =====================
-    let triActuel='rqc'; // 'rqc' ou 'prix'
+    let triActuel='rqc'; // 'ref', 'rqc' ou 'prix'
     let toutesLesData=[]; // cache des données
 
     function changerTri(tri){
@@ -370,6 +410,7 @@
 
         // Trier
         if(triActuel==='prix')groupes.sort((a,b)=>a.prixMin-b.prixMin);
+        else if(triActuel==='ref')groupes.sort((a,b)=>a.ref.localeCompare(b.ref,'fr'));
         else groupes.sort((a,b)=>a.meilleurRQC-b.meilleurRQC);
 
         groupes.forEach(groupe=>{
@@ -416,25 +457,57 @@
         if(error)alert("Erreur: "+error.message);else{alert("Modifié !");afficherDonnees()}
     }
 
+    // ===================== FILTRE TYPE D'ALCOOL (chips) =====================
+    function toggleTypeFilter(){
+        document.getElementById('typeChips').classList.toggle('open');
+        document.getElementById('typeFilterChevron').classList.toggle('open');
+    }
+    document.querySelectorAll('.type-chip[data-val]').forEach(chip=>{
+        chip.addEventListener('click',()=>{
+            chip.classList.toggle('selected');
+            majBadgeTypes();
+            filtrer();
+        });
+    });
+    function viderTypes(){
+        document.querySelectorAll('.type-chip.selected').forEach(c=>c.classList.remove('selected'));
+        majBadgeTypes();
+        filtrer();
+    }
+    function majBadgeTypes(){
+        const n=document.querySelectorAll('.type-chip.selected').length;
+        const badge=document.getElementById('typeCountBadge');
+        if(n>0){badge.textContent=n;badge.classList.add('active')}else{badge.classList.remove('active')}
+    }
+
     // Filtrage amélioré
     function filtrer(){
-        const search=document.querySelector('input[type="search"]').value.toLowerCase();
-        const checks=document.querySelectorAll('.filtre_type_alcool input[type="checkbox"]');
-        const types=Array.from(checks).filter(c=>c.checked).map(c=>c.value);
+        const search=document.querySelector('input[type="search"]').value.toLowerCase().trim();
+        const types=Array.from(document.querySelectorAll('.type-chip.selected')).map(c=>c.dataset.val);
         const prox=document.getElementById('filtreProximite').checked,dMax=parseFloat(document.getElementById('distanceMax').value);
         const filtreVille=document.getElementById('filtreVille').value;
         const filtreMagasin=document.getElementById('filtreMagasin').value;
+        let visibles=0;
         document.querySelectorAll(".reference-item").forEach(el=>{
-            const mS=el.dataset.ref.toLowerCase().includes(search);
-            const mT=types.length===0||types.includes(el.dataset.type.toLowerCase());
+            const mS=!search||el.dataset.ref.toLowerCase().includes(search);
+            const mT=types.length===0||types.includes((el.dataset.type||'').toLowerCase());
             let mP=true;if(prox&&userLat&&userLng){const la=parseFloat(el.dataset.lat),lo=parseFloat(el.dataset.lng);mP=(la&&lo)?dist(userLat,userLng,la,lo)<=dMax:false}
             const mV=!filtreVille||(el.dataset.villes||'').includes(filtreVille);
             const mM=!filtreMagasin||(el.dataset.magasins||'').includes(filtreMagasin);
-            el.style.display=mS&&mT&&mP&&mV&&mM?"block":"none"
-        })
+            const visible=mS&&mT&&mP&&mV&&mM;
+            el.style.display=visible?"block":"none";
+            if(visible)visibles++;
+        });
+        // Message si aucun résultat
+        let msgEl=document.getElementById('aucunResultat');
+        const div=document.getElementById('affichage_data');
+        if(visibles===0&&div.children.length>0){
+            if(!msgEl){msgEl=document.createElement('p');msgEl.id='aucunResultat';msgEl.className='loading-msg';msgEl.textContent='Aucun résultat pour ces critères.';div.appendChild(msgEl)}
+        } else if(msgEl){msgEl.remove()}
     }
     document.getElementById("affichage_form").addEventListener("change",filtrer);
     document.querySelector('input[type="search"]').addEventListener("input",filtrer);
+    document.querySelector('input[type="search"]').addEventListener("keydown",e=>{if(e.key==='Enter')e.preventDefault()});
 
     // Export
     async function exporterBD(){const{data,error}=await db.from('data').select('*');if(error){alert("Erreur: "+error.message);return}const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));a.download="bd_rqc_backup.json";a.click()}
