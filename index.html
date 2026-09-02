@@ -86,6 +86,24 @@
         .scanner-result{background:#e8f5e9;border:1px solid #4CAF50;border-radius:6px;padding:10px 15px;margin-bottom:15px;font-size:.9em;display:none;white-space:pre-line}
         .scanner-result.error{background:#ffebee;border-color:#f44336}
         .scanner-result.active{display:block}
+
+        /* Suggestion de correspondance floue */
+        .fuzzy-suggestion{background:#fff3e0;border:1px solid #FF9800;border-radius:6px;padding:10px 15px;margin-bottom:10px;font-size:.9em;display:none}
+        .fuzzy-suggestion.active{display:block}
+        .fuzzy-suggestion button{background:#FF9800;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.85em;margin-left:8px;margin-bottom:0;border-bottom:none;min-height:unset}
+        .fuzzy-suggestion button:hover{background:#F57C00}
+
+        /* Filtre amélioré */
+        .filtres-avances{background:#f9f9f9;border:1px solid #ddd;border-radius:6px;padding:12px 15px;margin:10px 0}
+        .filtres-avances label{font-weight:bold;display:block;margin-bottom:8px}
+        .filtre-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+        .filtre-row select,.filtre-row input[type="text"]{border:none;border-bottom:2px solid grey;background:#fff;padding:6px 8px;font-size:.9em;flex:1;min-width:120px;margin-bottom:0}
+        .filtre-row select:hover,.filtre-row input[type="text"]:hover{border-color:#ff351a}
+        .tri-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+        .tri-btn{background:#fff;border:1px solid #ddd;border-bottom:2px solid grey;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:.85em;margin-bottom:0;min-height:unset}
+        .tri-btn.active{background:#2196F3;color:#fff;border-color:#2196F3}
+        .tri-btn:hover{border-color:#ff351a}
+        .ean-badge{font-size:.7em;color:#9E9E9E;font-weight:normal;margin-left:6px;background:#f5f5f5;padding:1px 5px;border-radius:3px}
     </style>
 </head>
 <body>
@@ -111,6 +129,7 @@
         </div>
     </div>
 
+    # Page d'enregistrement
     <div id="page-enregistrement" class="page">
         <div class="form">
             <form class="enregistrement_form" id="enregistrement_form">
@@ -127,7 +146,9 @@
                 <input list="list_type_alcool" type="text" id="type_alcool" name="type_alcool" required placeholder="Type d'alcool">
                 <datalist id="list_type_alcool"><option value="Vodka"><option value="Bière blonde"><option value="Bière ambrée"><option value="Whisky"><option value="Rhum blanc"><option value="Rhum ambré"><option value="Rhum coco"><option value="Vin rouge"><option value="Vin blanc"><option value="Anisette"><option value="Pastis"><option value="Bières triple"><option value="Vermouth sec"><option value="Soho"><option value="Chartreuse"><option value="Tequila"><option value="Get 27"><option value="Gin"></datalist>
                 <input type="hidden" id="type_alcool_value">
-                <input list="list_references" type="text" id="references" name="references" required placeholder="Références de l'alcool">
+                <input list="list_references" type="text" id="references" name="references" required placeholder="Références de l'alcool" oninput="verifierCorrespondanceFloue(this.value)">
+                <div class="fuzzy-suggestion" id="fuzzySuggestion"></div>
+                <input type="hidden" id="ean_value">
                 <datalist id="list_references"><option value="Vodka pure grain triple distilled POLIAKOV 70 cL"><option value="Vodka pure grain triple distilled POLIAKOV 1L"><option value="Vodka pure grain triple distilled POLIAKOV 1.5L"><option value="Vodka pure grain triple distilled POLIAKOV 3L"><option value="Ricard 1L"><option value="Pastis 51 1L"><option value="Rivanis 1L"><option value="Ricard 70 cL"><option value="Pastis 51 70 cL"><option value="Smirnoff 70 cL"><option value="Absolut 1L"><option value="Absolut 70 cL"><option value="Zubrowka 1L"><option value="Zubrowka 70 cL"><option value="Vikoroff 1L"><option value="Vikoroff 70 cL"><option value="Grimbergen ambrée 20*25 cL"><option value="Chouffe blonde fût 5L"><option value="Grimbergen blonde 20*25 cL"><option value="Grimbergen blonde 12*25 cL"><option value="Goudale blonde 20*25 cL"><option value="Goudale blonde 12*25 cL"><option value="Goudale ambrée 12*25 cL"><option value="Goudale blonde fût 5L"><option value="Affligem blonde 20*25 cL"><option value="Affligem blonde 12*25 cL"><option value="Affligem blonde fût 5L"><option value="La bête blonde 12*25 cL"><option value="Triple secret des moines blonde fût 5L"><option value="Leffe blonde 20*25 cL"><option value="Grimbergen ambrée 12*25 cL"><option value="Paix-Dieu 75 cL"><option value="La bête blonde 75 cL"><option value="Martini blanc 1L"><option value="Litchi SOHO 70 cL"><option value="CHARTREUSE 70 cL"><option value="Delirium blonde tremens 75 cL"><option value="Rhum blanc CHARRETTE 70 cL"><option value="Rhum blanc OLD NICK 70 cL"><option value="Rhum blanc SAINT JAMES 70 cL"><option value="Rhum paille SAINT JAMES 70 cL"><option value="Rhum ambré OLD NICK 70 cL"><option value="Rhum blanc OLD NICK 1L"><option value="Rhum ambré SAINT JAMES 70 cL"><option value="Rhum blanc CHARRETTE 1L"><option value="Rhum blanc SAINT JAMES 1L"><option value="Rhum ambré SAINT JAMES 1L"><option value="Tequila JOSE CUERVO 70 cL"><option value="Tequila SAN JOSE 70 cL"><option value="Get 27 70 cL"><option value="Gibson's gin 70 cL"><option value="Clairpastis 1,5 L"><option value="Sobieski 1 L"><option value="Sir Edward's 70 cL"><option value="Dillon 100 cL"><option value="Malibu 70 cL"><option value="Sobieski 70 cL"><option value="AOC Bordeaux 75 cL"><option value="Bayanis 70 cL"><option value="Bayanis 100 cL"><option value="Rhum blanc ST Simon 70 cL"></datalist>
                 <br><input type="submit" class="submit_enregistrement" value="Enregistrer les données">
             </form>
@@ -141,13 +162,33 @@
                 <p>Quel type d'alcool ?</p>
                 <label><input type="checkbox" value="vodka"> Vodka</label><label><input type="checkbox" value="bière_blonde"> Bière blonde</label><label><input type="checkbox" value="bière_ambrée"> Bière ambrée</label><label><input type="checkbox" value="whisky"> Whisky</label><label><input type="checkbox" value="rhum_blanc"> Rhum blanc</label><label><input type="checkbox" value="rhum_ambré"> Rhum ambré</label><label><input type="checkbox" value="rhum_coco"> Rhum coco</label><label><input type="checkbox" value="vin_rouge"> Vin rouge</label><label><input type="checkbox" value="vin_blanc"> Vin blanc</label><label><input type="checkbox" value="pastis"> Pastis</label><label><input type="checkbox" value="tequila"> Tequila</label><label><input type="checkbox" value="gin"> Gin</label><label><input type="checkbox" value="anisette"> Anisette</label><label><input type="checkbox" value="bieres_triple"> Bières triple</label><label><input type="checkbox" value="vermouth_sec"> Vermouth sec</label><label><input type="checkbox" value="soho"> Soho</label><label><input type="checkbox" value="chartreuse"> Chartreuse</label><label><input type="checkbox" value="get_27"> Get 27</label>
             </div>
+
+            <!-- Filtres avancés -->
+            <div class="filtres-avances">
+                <label>🔧 Filtres et tri</label>
+                <div class="filtre-row">
+                    <select id="filtreVille" onchange="filtrer()">
+                        <option value="">📍 Toutes les villes</option>
+                    </select>
+                    <select id="filtreMagasin" onchange="filtrer()">
+                        <option value="">🏪 Tous les magasins</option>
+                    </select>
+                </div>
+                <div class="tri-buttons">
+                    <span style="font-size:.85em;align-self:center;margin-right:4px">Trier par :</span>
+                    <button type="button" class="tri-btn active" id="tri-ref" onclick="changerTri('ref')">Référence</button>
+                    <button type="button" class="tri-btn" id="tri-rqc" onclick="changerTri('rqc')">💰 Meilleur RQC</button>
+                    <button type="button" class="tri-btn" id="tri-prix" onclick="changerTri('prix')">Prix ↑</button>
+                </div>
+            </div>
+
             <div class="proximity-filter">
                 <label><input type="checkbox" id="filtreProximite" onchange="demanderPositionFiltre()"> 📍 Près de moi</label>
                 <div class="slider-row" id="sliderProximite" style="display:none"><span>Rayon :</span><input type="range" id="distanceMax" min="1" max="100" value="20" oninput="updateDistanceLabel();filtrer()"><span class="distance-val" id="distanceLabel">20 km</span></div>
                 <div id="geolocStatus" style="font-size:.85em;color:#666;margin-top:6px"></div>
             </div>
         </form>
-        <br><br><div id="affichage_data"></div>
+        <br><div id="affichage_data"></div>
     </div>
 
     <footer><div><p>&copy; 2026 rQC. Tous droits réservés. PF</p></div><div><p><a href="https://www.instagram.com/polefun200/">Instagram</a></p></div></footer>
@@ -176,18 +217,97 @@
     function updateDistanceLabel(){document.getElementById('distanceLabel').textContent=document.getElementById('distanceMax').value+' km'}
 
     // Scanner
-    let qr=null;
+    let qr=null,dernierEAN=null;
     function lancerScanner(){document.getElementById('scannerContainer').classList.add('active');document.getElementById('scanResult').classList.remove('active');qr=new Html5Qrcode("scanner-view");qr.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:100},formatsToSupport:[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E]},c=>{arreterScanner();rechercherProduit(c)},()=>{}).catch(e=>{document.getElementById('scannerContainer').classList.remove('active');const rd=document.getElementById('scanResult');rd.textContent="Caméra: "+e;rd.className='scanner-result error active'})}
     function arreterScanner(){if(qr)qr.stop().then(()=>qr.clear()).catch(()=>{});document.getElementById('scannerContainer').classList.remove('active')}
-    async function rechercherProduit(code){const rd=document.getElementById('scanResult');rd.textContent='Recherche '+code+'...';rd.className='scanner-result active';try{const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+code+'.json');const d=await r.json();if(d.status===0||!d.product){rd.textContent='Non trouvé ('+code+')';rd.className='scanner-result error active';return}remplirForm(d.product)}catch(e){rd.textContent='Erreur: '+e.message;rd.className='scanner-result error active'}}
-    function remplirForm(p){const rd=document.getElementById('scanResult');let ref=p.product_name||'';if(p.brands&&!ref.toLowerCase().includes(p.brands.toLowerCase()))ref=p.brands+' '+ref;if(p.quantity)ref+=' '+p.quantity;ref=ref.trim();document.getElementById('references').value=ref;let vol='';if(p.quantity){const q=p.quantity.toLowerCase();const a=q.match(/([\d.,]+)\s*cl/),b=q.match(/([\d.,]+)\s*ml/),c=q.match(/([\d.,]+)\s*l(?!i)/);if(a)vol=parseFloat(a[1].replace(',','.'));else if(b)vol=parseFloat(b[1].replace(',','.'))/10;else if(c)vol=parseFloat(c[1].replace(',','.'))*100}if(vol)document.getElementById('volume').value=vol;let deg='';if(p.nutriments&&p.nutriments.alcohol_100g)deg=p.nutriments.alcohol_100g;else if(p.alcohol_value)deg=p.alcohol_value;if(deg)document.getElementById('degre').value=deg;let t='';const s=((p.categories||'')+' '+(p.product_name||'')).toLowerCase();if(s.includes('vodka'))t='Vodka';else if(s.includes('rhum blanc')||s.includes('white rum'))t='Rhum blanc';else if(s.includes('rhum ambr')||s.includes('dark rum'))t='Rhum ambré';else if(s.includes('rhum')||s.includes('rum'))t='Rhum blanc';else if(s.includes('whisky')||s.includes('whiskey'))t='Whisky';else if(s.includes('gin'))t='Gin';else if(s.includes('tequila'))t='Tequila';else if(s.includes('pastis')||s.includes('ricard'))t='Pastis';else if(s.includes('bière')||s.includes('beer')){t=s.includes('ambrée')?'Bière ambrée':s.includes('triple')?'Bières triple':'Bière blonde'}else if(s.includes('vin rouge'))t='Vin rouge';else if(s.includes('vin blanc'))t='Vin blanc';if(t){document.getElementById('type_alcool').value=t;document.getElementById('type_alcool_value').value=typeMap[t]||t}let msg='✅ '+ref;const ch=[];if(vol)ch.push(vol+' cL');if(deg)ch.push(deg+'°');if(t)ch.push(t);if(ch.length)msg+='\n('+ch.join(', ')+')';msg+='\n\nVérifiez et ajoutez le prix.';rd.textContent=msg;rd.className='scanner-result active'}
+    async function rechercherProduit(code){
+        dernierEAN=code;
+        document.getElementById('ean_value').value=code;
+        const rd=document.getElementById('scanResult');rd.textContent='Recherche '+code+'...';rd.className='scanner-result active';
+        // Chercher d'abord si l'EAN est déjà en base
+        const{data:existing}=await db.from('data').select('reference,type_alcool,volume,degre').eq('ean',code).limit(1);
+        if(existing&&existing.length>0){
+            const e=existing[0];
+            document.getElementById('references').value=e.reference;
+            if(e.volume)document.getElementById('volume').value=e.volume;
+            if(e.degre)document.getElementById('degre').value=e.degre;
+            if(e.type_alcool){document.getElementById('type_alcool').value=e.type_alcool;document.getElementById('type_alcool_value').value=typeMap[e.type_alcool]||e.type_alcool}
+            rd.textContent='✅ EAN '+code+' déjà connu !\n"'+e.reference+'"\nVolume et degré pré-remplis. Ajoutez le prix et le magasin.';rd.className='scanner-result active';return;
+        }
+        try{const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+code+'.json');const d=await r.json();if(d.status===0||!d.product){rd.textContent='Non trouvé ('+code+'). Remplissez manuellement.';rd.className='scanner-result error active';return}remplirForm(d.product)}catch(e){rd.textContent='Erreur: '+e.message;rd.className='scanner-result error active'}
+    }
+    function remplirForm(p){const rd=document.getElementById('scanResult');let ref=p.product_name||'';if(p.brands&&!ref.toLowerCase().includes(p.brands.toLowerCase()))ref=p.brands+' '+ref;if(p.quantity)ref+=' '+p.quantity;ref=ref.trim();document.getElementById('references').value=ref;verifierCorrespondanceFloue(ref);let vol='';if(p.quantity){const q=p.quantity.toLowerCase();const a=q.match(/([\d.,]+)\s*cl/),b=q.match(/([\d.,]+)\s*ml/),c=q.match(/([\d.,]+)\s*l(?!i)/);if(a)vol=parseFloat(a[1].replace(',','.'));else if(b)vol=parseFloat(b[1].replace(',','.'))/10;else if(c)vol=parseFloat(c[1].replace(',','.'))*100}if(vol)document.getElementById('volume').value=vol;let deg='';if(p.nutriments&&p.nutriments.alcohol_100g)deg=p.nutriments.alcohol_100g;else if(p.alcohol_value)deg=p.alcohol_value;if(deg)document.getElementById('degre').value=deg;let t='';const s=((p.categories||'')+' '+(p.product_name||'')).toLowerCase();if(s.includes('vodka'))t='Vodka';else if(s.includes('rhum blanc')||s.includes('white rum'))t='Rhum blanc';else if(s.includes('rhum ambr')||s.includes('dark rum'))t='Rhum ambré';else if(s.includes('rhum')||s.includes('rum'))t='Rhum blanc';else if(s.includes('whisky')||s.includes('whiskey'))t='Whisky';else if(s.includes('gin'))t='Gin';else if(s.includes('tequila'))t='Tequila';else if(s.includes('pastis')||s.includes('ricard'))t='Pastis';else if(s.includes('bière')||s.includes('beer')){t=s.includes('ambrée')?'Bière ambrée':s.includes('triple')?'Bières triple':'Bière blonde'}else if(s.includes('vin rouge'))t='Vin rouge';else if(s.includes('vin blanc'))t='Vin blanc';if(t){document.getElementById('type_alcool').value=t;document.getElementById('type_alcool_value').value=typeMap[t]||t}let msg='✅ '+ref;const ch=[];if(vol)ch.push(vol+' cL');if(deg)ch.push(deg+'°');if(t)ch.push(t);if(ch.length)msg+='\n('+ch.join(', ')+')';msg+='\n\nVérifiez et ajoutez le prix.';rd.textContent=msg;rd.className='scanner-result active'}
 
     // Connexion check
     async function verifierConnexion(){const b=document.getElementById('statusBadge');try{const{error}=await db.from('data').select('id').limit(1);if(error)throw error;b.textContent='✅ Base en ligne';b.className='status-badge connected'}catch(e){b.textContent='❌ Connexion impossible';b.className='status-badge disconnected';console.error(e)}}
     verifierConnexion();
 
+    // ===================== LEVENSHTEIN (correspondance floue) =====================
+    // Calcule le nombre de modifications nécessaires pour passer d'une chaîne à l'autre
+    // Ex: "poliakov vodka 70cl" vs "vodka poliakov 70 cL" → score faible = très similaire
+    function levenshtein(a,b){
+        a=a.toLowerCase().trim();b=b.toLowerCase().trim();
+        const m=a.length,n=b.length;
+        const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+        for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+        return dp[m][n];
+    }
+    // Score de similarité entre 0 et 1 (1 = identique)
+    function similarite(a,b){const d=levenshtein(a,b);return 1-d/Math.max(a.length,b.length,1)}
+
+    // Toutes les références connues (chargées au démarrage)
+    let refsConnues=[];
+    async function chargerRefs(){const{data}=await db.from('data').select('reference,ean').limit(1000);if(data){const seen=new Set();refsConnues=data.filter(d=>{if(seen.has(d.reference))return false;seen.add(d.reference);return true})}}
+    chargerRefs();
+
+    // Vérifier si la référence tapée ressemble à une ref existante
+    let fuzzyTimeout=null;
+    function verifierCorrespondanceFloue(valeur){
+        clearTimeout(fuzzyTimeout);
+        const div=document.getElementById('fuzzySuggestion');
+        if(!valeur||valeur.length<5){div.classList.remove('active');return}
+        fuzzyTimeout=setTimeout(()=>{
+            if(!refsConnues.length){div.classList.remove('active');return}
+            // Chercher la ref la plus similaire parmi les refs connues
+            let meilleure=null,meilleureScore=0;
+            refsConnues.forEach(r=>{
+                const score=similarite(valeur,r.reference);
+                if(score>meilleureScore&&score>0.55&&r.reference.toLowerCase()!==valeur.toLowerCase()){
+                    meilleureScore=score;meilleure=r;
+                }
+            });
+            if(meilleure){
+                const pct=Math.round(meilleureScore*100);
+                div.innerHTML='⚠️ Ressemble à <strong>"'+meilleure.reference+'"</strong> ('+pct+'% similaire)<br><small>Utiliser cette référence pour grouper avec les entrées existantes ?</small><button onclick="utiliserRefExistante(\''+meilleure.reference.replace(/'/g,"\\'")+'\')" >Utiliser</button><button onclick="document.getElementById(\'fuzzySuggestion\').classList.remove(\'active\')" style="background:#9E9E9E;margin-left:4px">Ignorer</button>';
+                div.classList.add('active');
+            } else {
+                div.classList.remove('active');
+            }
+        },600);
+    }
+    function utiliserRefExistante(ref){document.getElementById('references').value=ref;document.getElementById('fuzzySuggestion').classList.remove('active')}
+
     // Datalists auto
-    async function majDatalists(){const{data}=await db.from('data').select('reference,magasin,ville,type_alcool');if(!data)return;const u=a=>[...new Set(a.filter(Boolean))];function add(id,vals){let dl=document.getElementById(id);if(!dl){dl=document.createElement('datalist');dl.id=id;document.body.appendChild(dl)}const ex=new Set(Array.from(dl.options).map(o=>o.value));vals.forEach(v=>{if(!ex.has(v)){const o=document.createElement('option');o.value=v;dl.appendChild(o)}})}add('list_references',u(data.map(d=>d.reference)));add('list_type_alcool',u(data.map(d=>d.type_alcool)));add('list_magasins',u(data.map(d=>d.magasin)));document.getElementById('magasin').setAttribute('list','list_magasins');add('list_villes',u(data.map(d=>d.ville)));document.getElementById('ville').setAttribute('list','list_villes')}
+    async function majDatalists(){
+        const{data}=await db.from('data').select('reference,magasin,ville,type_alcool');
+        if(!data)return;
+        const u=a=>[...new Set(a.filter(Boolean))];
+        function add(id,vals){let dl=document.getElementById(id);if(!dl){dl=document.createElement('datalist');dl.id=id;document.body.appendChild(dl)}const ex=new Set(Array.from(dl.options).map(o=>o.value));vals.forEach(v=>{if(!ex.has(v)){const o=document.createElement('option');o.value=v;dl.appendChild(o)}})}
+        add('list_references',u(data.map(d=>d.reference)));
+        add('list_type_alcool',u(data.map(d=>d.type_alcool)));
+        add('list_magasins',u(data.map(d=>d.magasin)));
+        document.getElementById('magasin').setAttribute('list','list_magasins');
+        add('list_villes',u(data.map(d=>d.ville)));
+        document.getElementById('ville').setAttribute('list','list_villes');
+
+        // Remplir les selects de filtre ville/magasin
+        const sv=document.getElementById('filtreVille'),sm=document.getElementById('filtreMagasin');
+        const villes=u(data.map(d=>d.ville)),mags=u(data.map(d=>d.magasin));
+        const cvV=sv.value,cvM=sm.value;
+        sv.innerHTML='<option value="">📍 Toutes les villes</option>'+villes.map(v=>'<option value="'+v+'">'+v+'</option>').join('');
+        sm.innerHTML='<option value="">🏪 Tous les magasins</option>'+mags.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+        if(cvV)sv.value=cvV;if(cvM)sm.value=cvM;
+    }
     majDatalists();
 
     // Enregistrement
@@ -195,34 +315,92 @@
         e.preventDefault();
         const prix=parseFloat(document.getElementById("prix").value),volume=parseFloat(document.getElementById("volume").value),degre=parseFloat(document.getElementById("degre").value);
         const volume_alcool=parseFloat(((volume*degre)/100).toFixed(2)),masse_alcool=parseFloat((volume_alcool*7.89).toFixed(2)),rqc=parseFloat((prix*100/volume_alcool).toFixed(2)),prix_litre=parseFloat((prix*100/volume).toFixed(2));
-        const donnees={prix,volume,degre,magasin:document.getElementById("magasin").value,type_alcool:document.getElementById("type_alcool").value,reference:document.getElementById("references").value,ville:document.getElementById("ville").value,volume_alcool,masse_alcool,rqc,prix_litre,latitude:parseFloat(document.getElementById("latitude").value)||null,longitude:parseFloat(document.getElementById("longitude").value)||null};
+        const ean=document.getElementById('ean_value').value||null;
+        const donnees={prix,volume,degre,magasin:document.getElementById("magasin").value,type_alcool:document.getElementById("type_alcool").value,reference:document.getElementById("references").value,ville:document.getElementById("ville").value,volume_alcool,masse_alcool,rqc,prix_litre,latitude:parseFloat(document.getElementById("latitude").value)||null,longitude:parseFloat(document.getElementById("longitude").value)||null,ean};
         const{data:ex}=await db.from('data').select('id').eq('reference',donnees.reference).eq('magasin',donnees.magasin).eq('ville',donnees.ville).eq('prix',donnees.prix).eq('volume',donnees.volume).eq('degre',donnees.degre).limit(1);
         if(ex&&ex.length>0){alert("⚠️ Doublon ! Utilisez Modifier.");return}
         const{error}=await db.from('data').insert([donnees]);
-        if(error){alert("Erreur: "+error.message);console.error(error)}else{alert("Enregistré !");document.getElementById("enregistrement_form").reset();majDatalists()}
+        if(error){alert("Erreur: "+error.message);console.error(error)}
+        else{alert("Enregistré !");document.getElementById("enregistrement_form").reset();document.getElementById('ean_value').value='';document.getElementById('fuzzySuggestion').classList.remove('active');dernierEAN=null;majDatalists();chargerRefs()}
     });
 
-    // Affichage
+    // ===================== AFFICHAGE =====================
+    let triActuel='ref'; // 'ref', 'rqc', 'prix'
+    let toutesLesData=[]; // cache des données
+
+    function changerTri(tri){
+        triActuel=tri;
+        document.querySelectorAll('.tri-btn').forEach(b=>b.classList.remove('active'));
+        document.getElementById('tri-'+tri).classList.add('active');
+        afficherDepuisCache();
+    }
+
     async function afficherDonnees(){
         const div=document.getElementById("affichage_data");div.innerHTML='<p class="loading-msg">Chargement...</p>';
         const{data,error}=await db.from('data').select('*').order('id',{ascending:true});
         if(error){div.innerHTML='<p class="loading-msg">Erreur.</p>';console.error(error);return}
-        div.innerHTML="";if(!data||data.length===0){div.innerHTML='<p class="loading-msg">Aucune donnée.</p>';return}
-        const gr={};data.forEach(i=>{if(!gr[i.reference])gr[i.reference]=[];gr[i.reference].push(i)});
-        for(const ref in gr){
-            const rd=document.createElement("div");rd.classList.add("reference-item");rd.dataset.ref=ref;
-            rd.dataset.type=typeMap[gr[ref][0].type_alcool]??gr[ref][0].type_alcool.toLowerCase();
-            const f=gr[ref][0];if(f.latitude)rd.dataset.lat=f.latitude;if(f.longitude)rd.dataset.lng=f.longitude;if(f.ville)rd.dataset.ville=f.ville;
+        toutesLesData=data||[];
+        afficherDepuisCache();
+    }
+
+    function afficherDepuisCache(){
+        const div=document.getElementById("affichage_data");
+        div.innerHTML="";
+        if(!toutesLesData.length){div.innerHTML='<p class="loading-msg">Aucune donnée.</p>';return}
+
+        // Grouper par EAN en priorité, sinon par référence
+        const gr={};
+        toutesLesData.forEach(i=>{
+            // La clé de groupe : l'EAN si disponible, sinon la référence
+            const cle=i.ean?'EAN:'+i.ean:i.reference;
+            if(!gr[cle])gr[cle]={ref:i.reference,ean:i.ean||null,items:[]};
+            gr[cle].items.push(i);
+            // Garder la référence la plus courante du groupe
+            const comptes={};gr[cle].items.forEach(x=>{comptes[x.reference]=(comptes[x.reference]||0)+1});
+            gr[cle].ref=Object.keys(comptes).reduce((a,b)=>comptes[a]>comptes[b]?a:b);
+        });
+
+        // Calculer le meilleur RQC de chaque groupe pour le tri
+        const groupes=Object.values(gr).map(g=>{
+            const meilleurRQC=Math.min(...g.items.map(i=>i.rqc));
+            const prixMin=Math.min(...g.items.map(i=>i.prix));
+            return{...g,meilleurRQC,prixMin};
+        });
+
+        // Trier
+        if(triActuel==='rqc')groupes.sort((a,b)=>a.meilleurRQC-b.meilleurRQC);
+        else if(triActuel==='prix')groupes.sort((a,b)=>a.prixMin-b.prixMin);
+        else groupes.sort((a,b)=>a.ref.localeCompare(b.ref,'fr'));
+
+        groupes.forEach(groupe=>{
+            const{ref,ean,items,meilleurRQC}=groupe;
+            const rd=document.createElement("div");rd.classList.add("reference-item");
+            rd.dataset.ref=ref;
+            rd.dataset.rqc=meilleurRQC;
+            rd.dataset.prix=groupe.prixMin;
+            rd.dataset.type=typeMap[items[0].type_alcool]??items[0].type_alcool.toLowerCase();
+            const f=items[0];if(f.latitude)rd.dataset.lat=f.latitude;if(f.longitude)rd.dataset.lng=f.longitude;if(f.ville)rd.dataset.ville=f.ville;
             if(!f.latitude&&f.ville&&cacheGeo[f.ville]){rd.dataset.lat=cacheGeo[f.ville].lat;rd.dataset.lng=cacheGeo[f.ville].lng}
-            let badge='';const eLat=parseFloat(rd.dataset.lat),eLng=parseFloat(rd.dataset.lng);
-            if(userLat&&userLng&&eLat&&eLng){badge='<span class="distance-badge">'+dist(userLat,userLng,eLat,eLng).toFixed(1)+' km</span>'}
-            rd.innerHTML='<a href="#" class="reference-link">'+ref+badge+'</a><div class="details" style="display:none"></div>';div.appendChild(rd);
+            rd.dataset.villes=items.map(i=>i.ville).join(',');
+            rd.dataset.magasins=items.map(i=>i.magasin).join(',');
+
+            let distBadge='';const eLat=parseFloat(rd.dataset.lat),eLng=parseFloat(rd.dataset.lng);
+            if(userLat&&userLng&&eLat&&eLng){distBadge='<span class="distance-badge">'+dist(userLat,userLng,eLat,eLng).toFixed(1)+' km</span>'}
+            const eanBadge=ean?'<span class="ean-badge">EAN '+ean+'</span>':'';
+            const rqcBadge=triActuel==='rqc'?'<span class="distance-badge" style="color:#2196F3">'+meilleurRQC+' €/L</span>':'';
+
+            rd.innerHTML='<a href="#" class="reference-link">'+ref+distBadge+rqcBadge+eanBadge+'</a><div class="details" style="display:none"></div>';
+            div.appendChild(rd);
             const det=rd.querySelector(".details");
             const tb=document.createElement("table");tb.innerHTML='<thead><tr><th>Magasin</th><th>Ville</th><th>Prix</th><th>Volume</th><th>Degré</th><th>RQC</th></tr></thead><tbody></tbody>';det.appendChild(tb);const tbody=tb.querySelector("tbody");
-            gr[ref].forEach(en=>{const tr=document.createElement("tr");tr.innerHTML='<td>'+en.magasin+'</td><td>'+en.ville+'</td><td>'+en.prix+'€</td><td>'+en.volume+'cL</td><td>'+en.degre+'°</td><td>'+en.rqc+' €/L</td>';tbody.appendChild(tr)});
-            gr[ref].forEach(en=>{const bd=document.createElement("div");bd.classList.add("entry-buttons");const eb=document.createElement("button");eb.classList.add("edit-button");eb.textContent='Modifier: '+en.magasin+' ('+en.prix+'€)';eb.addEventListener("click",()=>modifierEntree(en));bd.appendChild(eb);const dl=document.createElement("button");dl.classList.add("delete-button");dl.textContent='Supprimer';dl.addEventListener("click",()=>supprimerRef(en.id));bd.appendChild(dl);det.appendChild(bd)});
+
+            // Trier les entrées du groupe par RQC
+            [...items].sort((a,b)=>a.rqc-b.rqc).forEach(en=>{const tr=document.createElement("tr");tr.innerHTML='<td>'+en.magasin+'</td><td>'+en.ville+'</td><td>'+en.prix+'€</td><td>'+en.volume+'cL</td><td>'+en.degre+'°</td><td><strong>'+en.rqc+'</strong> €/L</td>';tbody.appendChild(tr)});
+
+            items.forEach(en=>{const bd=document.createElement("div");bd.classList.add("entry-buttons");const eb=document.createElement("button");eb.classList.add("edit-button");eb.textContent='Modifier: '+en.magasin+' ('+en.prix+'€)';eb.addEventListener("click",()=>modifierEntree(en));bd.appendChild(eb);const dl=document.createElement("button");dl.classList.add("delete-button");dl.textContent='Supprimer';dl.addEventListener("click",()=>supprimerRef(en.id));bd.appendChild(dl);det.appendChild(bd)});
             rd.querySelector(".reference-link").addEventListener("click",function(ev){ev.preventDefault();det.style.display=det.style.display==="none"?"block":"none"})
-        }
+        });
+        filtrer();
     }
     afficherDonnees();
 
@@ -238,17 +416,21 @@
         if(error)alert("Erreur: "+error.message);else{alert("Modifié !");afficherDonnees()}
     }
 
-    // Filtrage
+    // Filtrage amélioré
     function filtrer(){
         const search=document.querySelector('input[type="search"]').value.toLowerCase();
         const checks=document.querySelectorAll('.filtre_type_alcool input[type="checkbox"]');
         const types=Array.from(checks).filter(c=>c.checked).map(c=>c.value);
         const prox=document.getElementById('filtreProximite').checked,dMax=parseFloat(document.getElementById('distanceMax').value);
+        const filtreVille=document.getElementById('filtreVille').value;
+        const filtreMagasin=document.getElementById('filtreMagasin').value;
         document.querySelectorAll(".reference-item").forEach(el=>{
             const mS=el.dataset.ref.toLowerCase().includes(search);
             const mT=types.length===0||types.includes(el.dataset.type.toLowerCase());
             let mP=true;if(prox&&userLat&&userLng){const la=parseFloat(el.dataset.lat),lo=parseFloat(el.dataset.lng);mP=(la&&lo)?dist(userLat,userLng,la,lo)<=dMax:false}
-            el.style.display=mS&&mT&&mP?"block":"none"
+            const mV=!filtreVille||(el.dataset.villes||'').includes(filtreVille);
+            const mM=!filtreMagasin||(el.dataset.magasins||'').includes(filtreMagasin);
+            el.style.display=mS&&mT&&mP&&mV&&mM?"block":"none"
         })
     }
     document.getElementById("affichage_form").addEventListener("change",filtrer);
