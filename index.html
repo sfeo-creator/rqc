@@ -142,6 +142,7 @@
                 <input type="text" id="magasin" name="magasin" required placeholder="Magasin d'achat">
                 <input type="text" id="ville" name="ville" required placeholder="Ville d'achat">
                 <button type="button" class="geoloc-button" id="btnGeoloc" onclick="meLocaliser()">📍 Me localiser</button>
+                <div id="geolocConfirm" style="display:none;font-size:.85em;color:#4CAF50;margin:-8px 0 12px 2px;">✅ Coordonnées GPS enregistrées — vous pouvez modifier le nom de la ville ci-dessus sans les perdre <button type="button" onclick="effacerGeoloc()" style="background:none;border:none;border-bottom:1px solid #999;color:#999;font-size:.9em;padding:0;margin:0;min-height:unset;cursor:pointer">retirer</button></div>
                 <input type="hidden" id="latitude"><input type="hidden" id="longitude">
                 <input list="list_type_alcool" type="text" id="type_alcool" name="type_alcool" required placeholder="Type d'alcool">
                 <datalist id="list_type_alcool"><option value="Vodka"><option value="Bière blonde"><option value="Bière ambrée"><option value="Whisky"><option value="Rhum blanc"><option value="Rhum ambré"><option value="Rhum coco"><option value="Vin rouge"><option value="Vin blanc"><option value="Anisette"><option value="Pastis"><option value="Bières triple"><option value="Vermouth sec"><option value="Soho"><option value="Chartreuse"><option value="Tequila"><option value="Get 27"><option value="Gin"></datalist>
@@ -176,8 +177,7 @@
                 </div>
                 <div class="tri-buttons">
                     <span style="font-size:.85em;align-self:center;margin-right:4px">Trier par :</span>
-                    <button type="button" class="tri-btn active" id="tri-ref" onclick="changerTri('ref')">Référence</button>
-                    <button type="button" class="tri-btn" id="tri-rqc" onclick="changerTri('rqc')">💰 Meilleur RQC</button>
+                    <button type="button" class="tri-btn active" id="tri-rqc" onclick="changerTri('rqc')">💰 Meilleur RQC</button>
                     <button type="button" class="tri-btn" id="tri-prix" onclick="changerTri('prix')">Prix ↑</button>
                 </div>
             </div>
@@ -210,7 +210,8 @@
     // Geoloc
     let userLat=null,userLng=null;const cacheGeo={};
     function dist(a,b,c,d){const R=6371,dLat=(c-a)*Math.PI/180,dLng=(d-b)*Math.PI/180,x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
-    async function meLocaliser(){const btn=document.getElementById('btnGeoloc');btn.disabled=true;btn.textContent='📍 Localisation...';if(!navigator.geolocation){alert("Non supporté");btn.disabled=false;btn.textContent='📍 Me localiser';return}navigator.geolocation.getCurrentPosition(async p=>{document.getElementById('latitude').value=p.coords.latitude;document.getElementById('longitude').value=p.coords.longitude;try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+p.coords.latitude+'&lon='+p.coords.longitude+'&zoom=14&addressdetails=1',{headers:{'Accept-Language':'fr'}});const g=await r.json();const v=g.address.city||g.address.town||g.address.village||g.address.municipality||'';document.getElementById('ville').value=v;btn.textContent='📍 '+v}catch(e){btn.textContent='📍 GPS OK'}btn.disabled=false},e=>{btn.disabled=false;btn.textContent='📍 Me localiser';alert(e.code===1?"Refusé":"Erreur: "+e.message)},{enableHighAccuracy:true,timeout:10000})}
+    async function meLocaliser(){const btn=document.getElementById('btnGeoloc');btn.disabled=true;btn.textContent='📍 Localisation...';if(!navigator.geolocation){alert("Non supporté");btn.disabled=false;btn.textContent='📍 Me localiser';return}navigator.geolocation.getCurrentPosition(async p=>{document.getElementById('latitude').value=p.coords.latitude;document.getElementById('longitude').value=p.coords.longitude;document.getElementById('geolocConfirm').style.display='block';try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+p.coords.latitude+'&lon='+p.coords.longitude+'&zoom=14&addressdetails=1',{headers:{'Accept-Language':'fr'}});const g=await r.json();const v=g.address.city||g.address.town||g.address.village||g.address.municipality||'';document.getElementById('ville').value=v;btn.textContent='📍 Me localiser (position enregistrée)'}catch(e){btn.textContent='📍 Me localiser (GPS OK)'}btn.disabled=false},e=>{btn.disabled=false;btn.textContent='📍 Me localiser';alert(e.code===1?"Refusé":"Erreur: "+e.message)},{enableHighAccuracy:true,timeout:10000})}
+    function effacerGeoloc(){document.getElementById('latitude').value='';document.getElementById('longitude').value='';document.getElementById('geolocConfirm').style.display='none';document.getElementById('btnGeoloc').textContent='📍 Me localiser'}
     async function geocoder(nom){if(!nom||cacheGeo[nom]!==undefined)return cacheGeo[nom]||null;try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(nom+', France')+'&limit=1',{headers:{'Accept-Language':'fr'}});const res=await r.json();if(res.length>0){cacheGeo[nom]={lat:parseFloat(res[0].lat),lng:parseFloat(res[0].lon)};return cacheGeo[nom]}}catch(e){}cacheGeo[nom]=null;return null}
     async function geocoderManquants(){const els=document.querySelectorAll('.reference-item');const villes=new Set();els.forEach(el=>{if(!el.dataset.lat&&el.dataset.ville)villes.add(el.dataset.ville)});for(const v of villes){if(cacheGeo[v]===undefined){await geocoder(v);await new Promise(r=>setTimeout(r,1000))}}els.forEach(el=>{if(!el.dataset.lat&&el.dataset.ville&&cacheGeo[el.dataset.ville]){el.dataset.lat=cacheGeo[el.dataset.ville].lat;el.dataset.lng=cacheGeo[el.dataset.ville].lng}})}
     async function demanderPositionFiltre(){const s=document.getElementById('geolocStatus'),sl=document.getElementById('sliderProximite'),cb=document.getElementById('filtreProximite');if(!cb.checked){sl.style.display='none';s.textContent='';filtrer();return}if(userLat&&userLng){sl.style.display='flex';s.textContent='📍 Géocodage...';await geocoderManquants();s.textContent='📍 Filtre actif';filtrer();return}s.textContent='Localisation...';if(!navigator.geolocation){s.textContent='Non supporté';cb.checked=false;return}navigator.geolocation.getCurrentPosition(async p=>{userLat=p.coords.latitude;userLng=p.coords.longitude;sl.style.display='flex';s.textContent='📍 Géocodage...';await geocoderManquants();s.textContent='📍 Filtre actif';filtrer()},()=>{s.textContent='Impossible';cb.checked=false},{enableHighAccuracy:true,timeout:10000})}
@@ -321,11 +322,11 @@
         if(ex&&ex.length>0){alert("⚠️ Doublon ! Utilisez Modifier.");return}
         const{error}=await db.from('data').insert([donnees]);
         if(error){alert("Erreur: "+error.message);console.error(error)}
-        else{alert("Enregistré !");document.getElementById("enregistrement_form").reset();document.getElementById('ean_value').value='';document.getElementById('fuzzySuggestion').classList.remove('active');dernierEAN=null;majDatalists();chargerRefs()}
+        else{alert("Enregistré !");document.getElementById("enregistrement_form").reset();document.getElementById('ean_value').value='';document.getElementById('fuzzySuggestion').classList.remove('active');document.getElementById('geolocConfirm').style.display='none';document.getElementById('btnGeoloc').textContent='📍 Me localiser';dernierEAN=null;majDatalists();chargerRefs()}
     });
 
     // ===================== AFFICHAGE =====================
-    let triActuel='ref'; // 'ref', 'rqc', 'prix'
+    let triActuel='rqc'; // 'rqc' ou 'prix'
     let toutesLesData=[]; // cache des données
 
     function changerTri(tri){
@@ -368,9 +369,8 @@
         });
 
         // Trier
-        if(triActuel==='rqc')groupes.sort((a,b)=>a.meilleurRQC-b.meilleurRQC);
-        else if(triActuel==='prix')groupes.sort((a,b)=>a.prixMin-b.prixMin);
-        else groupes.sort((a,b)=>a.ref.localeCompare(b.ref,'fr'));
+        if(triActuel==='prix')groupes.sort((a,b)=>a.prixMin-b.prixMin);
+        else groupes.sort((a,b)=>a.meilleurRQC-b.meilleurRQC);
 
         groupes.forEach(groupe=>{
             const{ref,ean,items,meilleurRQC}=groupe;
