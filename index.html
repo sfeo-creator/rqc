@@ -136,7 +136,7 @@
         <div class="explication">
             <h1 class="titre_accueil">Bienvenue sur la page d'accueil du rQC</h1>
             <span id="statusBadge" class="status-badge loading">Connexion en cours...</span>
-            <p class="paragraphe_presentation">Le rQC c'est le prix de l'alcool pur d'une bouteille rapporté à un litre.<br>Il permet de savoir à quel prix est la race que je me mets.<br><br>Les données sont stockées <strong>en ligne</strong> : tout le monde partage la même base en temps réel.<br>Utilisez <strong>"Affichage des données"</strong> pour consulter et <strong>"Enregistrement"</strong> pour ajouter.<br><br>Verifiez lors de scans des codes barres : <strong><br/>- les volumes peuvent être erronés<br/>- les degrés peuvent être erronés<br/>- la référence peut ne pas être complète voire erronée<br/>- vérifiez un peu si possible que le code barre soit bon afin que l'enregistrement soit correct</strong><br>A chaque scan de code barre le dernier code barre scanné est enregistré et les informations entrées seront réutilisées.</p>
+            <p class="paragraphe_presentation">Le rQC c'est le prix de l'alcool pur d'une bouteille rapporté à un litre.<br>Il permet de savoir à quel prix est la race que je me mets.<br><br>Les données sont stockées <strong>en ligne</strong> : tout le monde partage la même base en temps réel.<br>Utilisez <strong>"Affichage des données"</strong> pour consulter et <strong>"Enregistrement"</strong> pour ajouter. Verifier bien les volumes ajouté lorsque vous scannez un code-barres, ils peuvent être erronés.</p>
         </div>
         <div class="buttons">
             <p>Sauvegarder une copie locale :</p>
@@ -144,7 +144,7 @@
         </div>
     </div>
 
-
+    # Page d'enregistrement
     <div id="page-enregistrement" class="page">
         <div class="form">
             <form class="enregistrement_form" id="enregistrement_form">
@@ -234,6 +234,15 @@
 
     <footer><div><p>&copy; 2026 rQC. Tous droits réservés. PF</p></div><div><p><a href="https://www.instagram.com/polefun200/">Instagram</a></p></div></footer>
 
+    <!-- Modale de scan pour lier un code-barres a posteriori à un groupe -->
+    <div id="eanLinkModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:#fff;border-radius:10px;padding:16px;max-width:400px;width:100%;box-sizing:border-box;">
+            <h3 style="margin:0 0 10px;font-size:1em;">📦 Scannez le code-barres à lier</h3>
+            <div id="modalScanView" style="width:100%;min-height:250px;"></div>
+            <button type="button" onclick="fermerModalScan()" style="width:100%;margin-top:8px;background:#f44336;color:#fff;border:none;border-radius:6px;padding:10px;cursor:pointer;min-height:unset;">Annuler</button>
+        </div>
+    </div>
+
     <script>
     const SUPABASE_URL='https://jmrpnapodrzyszcifzwn.supabase.co';
     const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptcnBuYXBvZHJ6eXN6Y2lmenduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NDAyOTEsImV4cCI6MjA5NjAxNjI5MX0.CIklX76jhI64kBOQKzmB__lFZvoLH32g_RaDzXSj6l8';
@@ -264,6 +273,71 @@
     function arreterScanner(){if(qr)qr.stop().then(()=>qr.clear()).catch(()=>{});document.getElementById('scannerContainer').classList.remove('active')}
     function afficherEanConfirm(code){document.getElementById('eanConfirmCode').textContent=code;document.getElementById('eanConfirm').style.display='block'}
     function retirerEan(){document.getElementById('ean_value').value='';document.getElementById('eanConfirm').style.display='none';dernierEAN=null}
+
+    // ===================== LIER UN CODE-BARRES A POSTERIORI =====================
+    // Pour les groupes de références qui n'ont pas encore de EAN : on scanne
+    // une bouteille du même produit, et on associe ce code à TOUTES les
+    // entrées existantes de ce groupe, pour que l'auto-apprentissage
+    // fonctionne pour les futurs scans.
+    let qrModal=null,groupeCible=null;
+    function lierEanGroupe(ref){
+        groupeCible=ref;
+        document.getElementById('eanLinkModal').style.display='flex';
+        qrModal=new Html5Qrcode("modalScanView");
+        qrModal.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:100},formatsToSupport:[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E]},async code=>{
+            if(qrModal){await qrModal.stop().catch(()=>{});qrModal.clear()}
+            document.getElementById('eanLinkModal').style.display='none';
+            await appliquerEanGroupe(groupeCible,code);
+        },()=>{}).catch(e=>{alert("Caméra inaccessible: "+e);fermerModalScan()});
+    }
+    function fermerModalScan(){
+        if(qrModal){qrModal.stop().then(()=>qrModal.clear()).catch(()=>{})}
+        document.getElementById('eanLinkModal').style.display='none';
+    }
+    async function appliquerEanGroupe(ref,code){
+        // Vérifier si ce code est déjà utilisé par un AUTRE groupe (fusion potentielle)
+        const{data:autre}=await db.from('data').select('reference').eq('ean',code).neq('reference',ref).limit(1);
+        if(autre&&autre.length>0){
+            const ok=confirm('Ce code-barres est déjà lié au groupe "'+autre[0].reference+'".\n\nContinuer va fusionner "'+ref+'" avec ce groupe. Continuer ?');
+            if(!ok)return;
+        }
+        const{error}=await db.from('data').update({ean:code}).eq('reference',ref);
+        if(error){alert("Erreur: "+error.message);return}
+        alert('Code-barres '+code+' lié au groupe "'+ref+'" !');
+        await chargerRefs();
+        afficherDonnees();
+    }
+
+    // ===================== RENOMMER / FUSIONNER UN GROUPE =====================
+    // Permet de corriger le nom d'un groupe, ou de le fusionner avec un
+    // groupe existant en reprenant exactement son nom.
+    async function renommerGroupe(currentRef,currentEan,ids){
+        const nouveau=prompt('Nouveau nom pour ce groupe (les '+ids.length+' entrée(s) seront renommées) :',currentRef);
+        if(nouveau===null)return;
+        const finalTape=nouveau.trim();
+        if(!finalTape||finalTape===currentRef)return;
+
+        // Suggestion de fusion si un groupe très similaire existe déjà
+        let meilleure=null,meilleureScore=0;
+        refsConnues.forEach(r=>{
+            if(r.reference===currentRef)return;
+            const score=similarite(finalTape,r.reference);
+            if(score>meilleureScore&&score>0.8){meilleureScore=score;meilleure=r.reference}
+        });
+        let finalRef=finalTape;
+        if(meilleure&&meilleure!==finalTape){
+            const useExisting=confirm('Un groupe existant s\'appelle "'+meilleure+'" ('+Math.round(meilleureScore*100)+'% similaire).\n\nOK pour fusionner avec ce groupe exact.\nAnnuler pour garder votre saisie "'+finalTape+'".');
+            if(useExisting)finalRef=meilleure;
+        }
+
+        const{error}=await db.from('data').update({reference:finalRef}).in('id',ids);
+        if(error){alert("Erreur: "+error.message);return}
+        alert('Groupe renommé en "'+finalRef+'" ('+ids.length+' entrée(s)).');
+        await chargerRefs();
+        await majDatalists();
+        afficherDonnees();
+    }
+
     async function rechercherProduit(code){
         dernierEAN=code;
         document.getElementById('ean_value').value=code;
@@ -437,6 +511,27 @@
             rd.innerHTML='<a href="#" class="reference-link">'+ref+distBadge+rqcBadge+eanBadge+'</a><div class="details" style="display:none"></div>';
             div.appendChild(rd);
             const det=rd.querySelector(".details");
+
+            // Actions de groupe : lier un EAN a posteriori, renommer le groupe
+            const groupActions=document.createElement("div");
+            groupActions.classList.add("entry-buttons");
+            groupActions.style.marginBottom="8px";
+            if(!ean){
+                const linkBtn=document.createElement("button");
+                linkBtn.classList.add("scan-button");
+                linkBtn.style.width="auto";linkBtn.style.padding="6px 12px";linkBtn.style.fontSize=".8em";linkBtn.style.marginBottom="0";
+                linkBtn.textContent="📦 Lier un code-barres";
+                linkBtn.addEventListener("click",()=>lierEanGroupe(ref));
+                groupActions.appendChild(linkBtn);
+            }
+            const renameBtn=document.createElement("button");
+            renameBtn.classList.add("edit-button");
+            renameBtn.style.fontSize=".8em";renameBtn.style.marginBottom="0";
+            renameBtn.textContent="✏️ Renommer ce groupe";
+            renameBtn.addEventListener("click",()=>renommerGroupe(ref,ean,items.map(i=>i.id)));
+            groupActions.appendChild(renameBtn);
+            det.appendChild(groupActions);
+
             const tb=document.createElement("table");tb.innerHTML='<thead><tr><th>Magasin</th><th>Ville</th><th>Prix</th><th>Volume</th><th>Degré</th><th>RQC</th></tr></thead><tbody></tbody>';det.appendChild(tb);const tbody=tb.querySelector("tbody");
 
             // Trier les entrées du groupe par RQC
